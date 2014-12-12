@@ -1,0 +1,45 @@
+﻿<Window x:Class="TestAppSync.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525" WindowState="Maximized" Closing="Window_Closing">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Button x:Name="btnStartManager" Content="Start" Margin="4" Padding="16,2" Click="btnStartManager_Click"/>
+            <Button x:Name="btnStopManager" Grid.Column="1" Content="Stop" Margin="4" Padding="16,2" Click="btnStopManager_Click"/>
+            <ProgressBar Grid.Column="2" IsIndeterminate="True" Margin="4"/>
+            <TextBlock Grid.Column="2" Text="Animation pour montrer l'activité de l'interface" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Grid>
+        
+        <Grid x:Name="actionsLayout" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel x:Name="actions">
+                <StackPanel.Resources>
+                    <Style TargetType="Button" BasedOn="{StaticResource ResourceKey={x:Type Button}}">
+                        <Setter Property="Margin" Value="4"/>
+                        <Setter Property="Padding" Value="8,4"/>
+                    </Style>
+                </StackPanel.Resources>
+                <Button x:Name="btnAction1" Content="Action travaillant 1000 ms" Click="btnAction1_Click" />
+                <Button x:Name="btnAction2" Content="Lancement de 4 actions" Click="btnAction2_Click" />
+            </StackPanel>
+            
+            <TextBox x:Name="tbLog" Grid.Column="1" IsReadOnly="True"/>
+            
+        </Grid>
+        
+    </Grid>
+</Window>
