@@ -1,4 +1,4 @@
-tests
+Tests
 =====
 
-Différents tests ou code de démonstration
+Dépôt contenant différents tests ou code de démonstration.
