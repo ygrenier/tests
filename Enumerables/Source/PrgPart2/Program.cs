@@ -118,6 +118,28 @@ namespace PrgPart2
             }
         }
 
+        static IEnumerable<String> EnumFichierYieldUnprotected(String[] files)
+        {
+            if (files != null)
+            {
+                // Pour chaque fichier
+                foreach (var file in files)
+                {
+                    // Ouverture d'un lecteur de fichier texte
+                    using (var reader = new StreamReader(file))
+                    {
+                        // Lecture de chaque ligne du fichier
+                        String line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            // On ajoute la ligne dans la liste
+                            yield return line;
+                        }
+                    }
+                }
+            }
+        }
+
         private static void TestFichierYield()
         {
             // Récupération d'un 'énumérable avec les fichiers de tests
@@ -139,12 +161,58 @@ namespace PrgPart2
 
         }
 
+        static IEnumerable<String> EnumComplex()
+        {
+            Random rnd = new Random();
+
+            // Emission directe
+            yield return "Start";
+
+            // Emission dans un switch
+            for (int i = 0; i < 10; i++)
+            {
+                switch (rnd.Next(4))
+                {
+                    case 1:
+                        yield return "Funky 1";
+                        break;
+                    case 2:
+                        continue;
+                    case 3:
+                        yield return "<<<<";
+                        // Emission d'un autre énum
+                        foreach (var line in EnumFichierYield(GetTestFileNames()))
+                        {
+                            // On place une condition
+                            if (line.Contains("x"))
+                                yield return line;
+                        }
+                        yield return ">>>>";
+                        break;
+                    case 0:
+                    default:
+                        yield return "Funky 0";
+                        break;
+                }
+            }
+
+            // Emission directe
+            yield return "End";
+        }
+
+        static void TestEnumComplex()
+        {
+            foreach (var item in EnumComplex())
+                Console.WriteLine(item);
+        }
+
         static void Main(string[] args)
         {
             //TestFichierBarbare();
             //TestFichierUnPeuMoinsBarbare();
             //TestFichierSubtile();
-            TestFichierYield();
+            //TestFichierYield();
+            TestEnumComplex();
 
             Console.ReadLine();
         }

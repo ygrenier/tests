@@ -8,11 +8,11 @@ C'est là que le compilateur C# va venir à notre rescousse via le mot clé ```y
 
 Bien imaginons par exemple que nous voulons un énumérable auquel nous transmettons une liste de fichiers, et cet énumérable va parcourir chaque fichier et énumérer chaque ligne de texte du fichier.
 
-Cet exemple est très intéressant car il inclus un gestion des erreurs (un fichier peut ne pas exister, ou être verrouillé, etc.) et une gestion des resources multiples (chaque fichier doit être disposé).
+Cet exemple est intéressant car il inclus un gestion des erreurs (un fichier peut ne pas exister, ou être verrouillé, etc.) et une gestion des resources multiples (chaque fichier doit être disposé).
 
 ## Version barbare
 
-Commençons par une version ressemblant à ce que je vois de temps en temps et qui m'a entre autre poussé à faire cette série d'articles. C'est typiquement la solution que va prendre quelqu'un qui ne comprends pas les principes des énumérables ou tout simplement qui fui devant la difficulté de faire un énumérateur correcte.
+Commençons par une version ressemblant à ce que je vois de temps en temps et qui m'a entre autre poussé à faire cette série d'articles. C'est typiquement la solution que va prendre quelqu'un qui ne comprends pas les principes des énumérables ou tout simplement qui fuit devant la difficulté de faire un énumérateur correct.
 
 Cette solution se contente de lire tous les fichiers dans une liste, et lorsqu'on à besoin d'un énumérateur on retourne celui de la liste.
 
@@ -105,7 +105,7 @@ Voilà le genre de chose que je rencontre (et encore là je charge les lignes à
 
 Alors qu'est-ce qui me chagrine dans cet énumérable ?
 
-La première chose c'est que si les fichiers venaient à changer de contenu entre deux appels de ```GetEnumerator()``` nous retournerons à chaque fois le contenu de la lecture. On peut résoudre ce problème simplement en modifiant légèrement notre code pour reconstruire la liste des lignes à chaque appel.
+La première chose c'est que si les fichiers venaient à changer de contenu entre deux appels de ```GetEnumerator()``` nous retournerons à chaque fois le contenu de la lecture initiale. On peut résoudre ce problème simplement en modifiant légèrement notre code pour reconstruire la liste des lignes à chaque appel.
 
 
 ```csharp
@@ -188,7 +188,7 @@ La première chose c'est que si les fichiers venaient à changer de contenu entr
 
 On supprime la liste des lignes de l'énumérable et on construit une nouvelle liste à chaque appel de ```GetEnumerator()``` et on retourne l'énumerateur de cette nouvelle liste.
 
-OK ça respecte mieux les principes des énumérables toutefois ce n'est toujours pas satisfaisant d'un point de vue des performances. En effet s'il s'avère que les fichiers sont volumineux, nous chargeons tout dans une liste en mémoire. Imaginons que nous nous servons de cet énumérable pour filtrer quelques lignes sur un million, vous pouvez mettre à genoux votre machine. Pire si on n'extrait que les milles premières lignes, nous aurons chargé un 999000 lignes de trop :(
+OK ça respecte mieux les principes des énumérables toutefois ce n'est toujours pas satisfaisant d'un point de vue des performances. En effet s'il s'avère que les fichiers sont volumineux, nous chargeons tout dans une liste en mémoire. Imaginons que nous nous servons de cet énumérable pour filtrer quelques lignes sur un million, vous pouvez mettre à genoux votre machine. Pire si on n'extrait que les milles premières lignes, nous aurons chargé 999000 lignes de trop :(
 
 ## Version plus subtile
 
@@ -402,9 +402,9 @@ Nous allons donc faire preuve de subtilité et gérer la lecture en flux.
 
 Donc cette fois la partie lecture est défini dans un énumérateur. Il s'agit d'une simple machine à états : 'OpenNextFile', 'ReadNextFile' et 'Completed'.
 
-On constate qu'il être vigilant à endroit où une erreur peut survenir, ne pas oublier de libérer les ressources en fonction de différentes situations, etc.
+On constate qu'il faut être vigilant à endroit où une erreur peut survenir, ne pas oublier de libérer les ressources en fonction de différentes situations, etc.
 
-En revanche nous lisant nos fichier lignes par lignes, par conséquent la charge mémoire est à son minimum. En cas de dispose on libère le fichier ouvert, et on se se place sur l'état 'Completed' pour que l'énumérateur ne puisse plus rien faire.
+En revanche nous lisons nos fichiers ligne par ligne, par conséquent la charge mémoire est à son minimum. En cas de dispose on libère le fichier ouvert, et on se se place sur l'état 'Completed' pour que l'énumérateur ne puisse plus rien faire.
 
 Pour gérer tout ce petit monde on a pas mal de ligne de code.
 
@@ -525,6 +525,35 @@ Par exemple :
 
 ```
 
-```TestFichierYield()``` est une méthode qui lance deux boucles d'un énumérable renvoyé par la méthode ```EnumFichierYield()```. C'est cette dernière qui est importante, on constate que l'on renvoi un ```IEnumerable``` mais avec un code assez semblable à celui de notre premier énumérateur (une double boucle pour lire chaque ligne de chaque fichier) mais eu lieu de remplir une liste et de renvoyer un l'énumérable correspondant on a un ```yield return line``` qui renvoi un string.
+```TestFichierYield()``` est une méthode qui lance deux boucles d'un énumérable renvoyé par la méthode ```EnumFichierYield()```. 
 
-En fait le ```yield``` signifie au compilateur "d'émettre" une chaîne dans un pseudo énumérable de retour.
+C'est cette dernière qui nous intéresse, alors petite explication de texte. On constate que cette méthode retourne un ```IEnumerable<String>```, en revanche elle ne renvoie jamais d'énumérable, a la place on constate dans la double boucle de lecture de fichier une instruction ```yield return line;``` ou ```line``` est une ```string```.
+
+Le ```yield return``` dans une méthode indique au compilateur que cette méthode est en fait un énumérateur et que chaque ```yield return``` renvoi un élément de cet énumérateur. Techniquement le compilateur va transformer cette méthode en un objet ```IEnumerator``` qui va simuler le code de la méthode.
+
+En plus du ```yield return``` il existe le ```yield break``` qui arrête l'énumérateur.
+
+Globalement le compilateur est capable de convertir la plupart du code en énumérateur, toutefois on ne peut pas utiliser ```yield return``` dans un try-catch (mais on le peut dans un try-finally). En revanche un ```yield break``` peut se trouver dans un try-catch mais pas un try-finally.
+
+C'est pour ça que mon code est un peu plus compliqué qu'une simple double boucle pour prendre en compte d'éventuelles erreurs. Mais malgré celà il reste toujours plus court et facile à maintenir que notre énumérateur précédent.
+
+L'énumérateur généré supporte le ```IDisposable``` par exemple dans notre cas si l'itération se termine en cours de lecture d'un fichier, comme il y a un using, le compilateur se chargera de créer le code nécessaire pour disposer la ressource se trouvant dans le using. De même que si dans une boucle ```foreach``` une exception est levée, et que l'on a un bloc **finally** qui englobe le ```yield return``` en cours alors ce bloc **finally** sera exécuté.
+
+Le mot clé ```yield``` peut être utilisé dans une méthode qui retourne ```IEnumerable``` mais également ```IEnumerator``` ce qui nous permet d'implémenter ```IEnumerable.GetEnumerator()``` par une méthode ```yield```.
+
+Dernier point, l'énumérateur généré par le compilateur ne prend pas en charge ```IEnumerator.Reset()``` une exception ```NotSupportedException``` est levée.
+
+Pour plus d'informations sur ```yield``` et les itérateurs, voici quelques liens :
+- [Référence C# de yield](https://msdn.microsoft.com/fr-fr/library/9k7k7cf0.aspx)
+- [Les itérateurs en C# et VB.net](https://msdn.microsoft.com/fr-fr/library/dscyy5s0.aspx)
+
+## Conclusion
+
+L'utilisation de ```yield``` est très pratique, elle permet de gérer des scénarios complexes avec un code 'classique'. La seule vraie difficulté réside dans la gestion des exceptions, qui peut compliquer notre code, mais de manière générale notre code est toujours plus simple.
+
+Le compilateur et le debuggeur de Visual Studio sont extrêment performants et vous permettent de faire du pas à pas dans l'énumérateur généré par ```yield```, et ainsi tracer exactement ce qu'il se passe dans l'énumérateur, même si la plomberie est complexe, la trace suit parfaitement votre code.
+
+Le programme 'PrgPart2' contient les différents exemples donnés, plus quelques méthodes ```yield``` suplémentaires pour montrer qu'on peut faire des choses complexes.
+
+Pour la dernière partie nous allons voir le comportement des énumérables avec LINQ, car là également il y a parfois un peu d'incompréhension.
+
