@@ -449,3 +449,82 @@ Et si on pouvait concilier les deux ?
 
 Par exemple :
 
+```csharp
+
+        /// <summary>
+        /// Ouvre un nouveau fichier ou retourne null si une erreur à lieu
+        /// </summary>
+        static StreamReader OpenFile(String file)
+        {
+            try
+            {
+                return new StreamReader(file);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        static IEnumerable<String> EnumFichierYield(String[] files)
+        {
+            if (files != null)
+            {
+                // Pour chaque fichier
+                foreach (var file in files)
+                {
+                    // Ouverture d'un lecteur de fichier texte
+                    using (var reader = OpenFile(file))
+                    {
+                        // reader peut être null si une erreur à eu lieu
+                        if (reader != null)
+                        {
+                            // Lecture de chaque ligne du fichier
+                            String line;
+                            do
+                            {
+                                // Lecture d'une ligne, si une erreur à lieu on arrête la boucle
+                                try
+                                {
+                                    line = reader.ReadLine();
+                                }
+                                catch
+                                {
+                                    break;
+                                }
+                                // On envoi la ligne d'énumérable
+                                if (line != null)
+                                    yield return line;
+                            } while (line != null);// Boucle tant qu'on a une ligne
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void TestFichierYield()
+        {
+            // Récupération d'un énumérable avec les fichiers de tests
+            var enumerable = EnumFichierYield(GetTestFileNames());
+
+            // On parcours l'énumérable
+            foreach (var line in enumerable)
+            {
+                Console.WriteLine(line);
+            }
+
+            // On parcours l'énumérable et provoque un arrêt prématuré
+            int i = 0;
+            foreach (var line in enumerable)
+            {
+                if (i++ >= 4) break;
+                Console.WriteLine(line);
+            }
+
+        }
+
+```
+
+```TestFichierYield()``` est une méthode qui lance deux boucles d'un énumérable renvoyé par la méthode ```EnumFichierYield()```. C'est cette dernière qui est importante, on constate que l'on renvoi un ```IEnumerable``` mais avec un code assez semblable à celui de notre premier énumérateur (une double boucle pour lire chaque ligne de chaque fichier) mais eu lieu de remplir une liste et de renvoyer un l'énumérable correspondant on a un ```yield return line``` qui renvoi un string.
+
+En fait le ```yield``` signifie au compilateur "d'émettre" une chaîne dans un pseudo énumérable de retour.

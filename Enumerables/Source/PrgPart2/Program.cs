@@ -67,6 +67,21 @@ namespace PrgPart2
 
         }
 
+        /// <summary>
+        /// Ouvre un nouveau fichier ou retourne null si une erreur à lieu
+        /// </summary>
+        static StreamReader OpenFile(String file)
+        {
+            try
+            {
+                return new StreamReader(file);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         static IEnumerable<String> EnumFichierYield(String[] files)
         {
             if (files != null)
@@ -75,14 +90,28 @@ namespace PrgPart2
                 foreach (var file in files)
                 {
                     // Ouverture d'un lecteur de fichier texte
-                    using (var reader = new StreamReader(file))
+                    using (var reader = OpenFile(file))
                     {
-                        // Lecture de chaque ligne du fichier
-                        String line;
-                        while ((line = reader.ReadLine()) != null)
+                        // reader peut être null si une erreur à eu lieu
+                        if (reader != null)
                         {
-                            // On envoi la ligne d'énumérable
-                            yield return line;
+                            // Lecture de chaque ligne du fichier
+                            String line;
+                            do
+                            {
+                                // Lecture d'une ligne, si une erreur à lieu on arrête la boucle
+                                try
+                                {
+                                    line = reader.ReadLine();
+                                }
+                                catch
+                                {
+                                    break;
+                                }
+                                // On envoi la ligne d'énumérable
+                                if (line != null)
+                                    yield return line;
+                            } while (line != null);// Boucle tant qu'on a une ligne
                         }
                     }
                 }
