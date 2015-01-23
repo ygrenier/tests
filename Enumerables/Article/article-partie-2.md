@@ -555,5 +555,5 @@ Le compilateur et le debuggeur de Visual Studio sont extrêment performants et v
 
 Le programme 'PrgPart2' contient les différents exemples donnés, plus quelques méthodes ```yield``` suplémentaires pour montrer qu'on peut faire des choses complexes.
 
-Pour la dernière partie nous allons voir le comportement des énumérables avec LINQ, car là également il y a parfois un peu d'incompréhension.
+Pour [la dernière partie](article-partie-3.md) nous allons voir le comportement des énumérables avec LINQ, car là également il y a parfois un peu d'incompréhension.
 

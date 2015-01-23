@@ -1,3 +1,5 @@
+# Soyons énumérables
+
 Ces derniers temps je me suis battu à expliquer le fonctionnement des énumérables en .Net (en C# plus précisément) à plusieurs personnes et notamment des conséquences sur des librairies comme LINQ.
 
 Alors je n'ai pas la prétention de tout maîtriser sur le sujet, mais il y a quelques bases qui, me semble-t-il, devrait tout de même être connues. 
@@ -258,4 +260,5 @@ Ce qu'il faut retenir :
 
 Le programme "PrgPart1" implémente des exemples des différents codes que j'ai fourni dans cet article. 
 
-La seconde partie de cette article montrera comment générer des énumérateurs complexes de manière assez simple grâce au mot clé ```yield```.
+La [seconde partie](article-partie-1.md) de cette article montrera comment générer des énumérateurs complexes de manière assez simple grâce au mot clé ```yield```.
+
