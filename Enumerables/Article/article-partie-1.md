@@ -22,7 +22,7 @@ Donc pour rendre une classe énumérable, on implémente ```IEnumerable``` qui v
 
 A savoir: toutes les listes, collections, dictionnaires, ainsi que les tableaux du .Net, implémentent ```IEnumerable```.
 
-### Interface IEnumerable/IEnumerable<T>
+### Interface IEnumerable/IEnumerable&lt;T&gt;
 
 Cette interface indique qu'on peut énumérer l'objet de la classe qu'il l'implémente. Elle ne possède qu'une méthode ```GetEnumerator()``` retournant un ```IEnumerator```.
 
@@ -42,7 +42,7 @@ public interface IEnumerable<out T> : IEnumerable
 
 Le principe de cette interface et de fournir un nouvel objet énumérateur à chaque appel permettant ainsi de démarrer une nouvelle itération, et permettre également d'avoir plusieurs itérations en parallèle sur la même source.
 
-### Interface IEnumerator/IEnumerator<T>
+### Interface IEnumerator/IEnumerator&lt;T&gt;
 
 Cette interface représente la logique d'itération (objet énumérateur). C'est elle qui indique l'élément en cours et qui permet de se "déplacer" dans l'énumération.
 
@@ -55,7 +55,7 @@ public interface IEnumerator
     void Reset();
 }
 
-public interface IEnumerator&lt;out T&gt; : IDisposable, IEnumerator
+public interface IEnumerator<out T> : IDisposable, IEnumerator
 {
     T Current { get; }
 }
@@ -77,7 +77,7 @@ Ainsi la boucle suivante
 
 ```csharp
 // Récupération de l'énumérable
-IEnumerable <Int32> enumerable = GetItems();
+IEnumerable<Int32> enumerable = GetItems();
 
 // Parcours chaque élément dans elm
 foreach (int elm in enumerable)
@@ -148,99 +148,99 @@ L'implémentation est assez simple au final, ce qui importe c'est qu'a sa créat
 Imaginons que nous voulons créer un énumérateur qui parcours une liste à l'envers.
 
 ```csharp
-    /// <summary>
-    /// Enumérateur parcourant une liste dans le sens inverse
-    /// </summary>
-    public class ReverseEnumerator<T> : IEnumerator<T>
-    {
-        IList<T> _Source;
-        int _Position;
-        bool _Completed;
-
-        /// <summary>
-        /// Création d'un nouvel énumérateur
-        /// </summary>
-        public ReverseEnumerator(IList<T> source)
-        {
-            this._Source = source;
-            // On met -1 pour indiquer qu'on a pas commencé l'itération
-            this._Position = -1;
-            // L'itération n'est pas terminée
-            this._Completed = false;
-            // On défini Current avec la valeur par défaut
-            this.Current = default(T);
-        }
-
-        /// <summary>
-        /// Libération des ressources
-        /// </summary>
-        public void Dispose()
-        {
-            // On a rien à libérer , mais on marque notre itérateur comme terminé
-            this._Completed = true;
-        }
-
-        /// <summary>
-        /// Cette méthode est appelée lorsque l'on veut réinitialiser l'énumérateur
-        /// </summary>
-        public void Reset()
-        {
-            // On met -1 pour indiquer qu'on a pas commencer l'itération
-            this._Position = -1;
-            // L'itération n'est pas terminée
-            this._Completed = false;
-            // On défini Current avec la valeur par défaut
-            this.Current = default(T);
-        }
-
-        /// <summary>
-        /// On se déplace vers le prochain élément
-        /// </summary>
-        /// <returns>False lorsque l'itération est terminée</returns>
-        public bool MoveNext()
-        {
-            // Si la source est Null alors on a rien à parcourir, donc l'itération s'arrête
-            if (this._Source == null) return false;
-
-            // Si l'itération est terminée alors on ne va pas plus loin
-            if (this._Completed) return false;
-
-            // Si la position est à -1 on récupère le nombre d'éléments à parcourir pour démarrer l'itération
-            if (this._Position == -1)
-            {
-                this._Position = _Source.Count;
-            }
-
-            // On se déplace dans la liste
-            this._Position--;
-
-            // Si on a atteind -1 alors on a terminé l'itération
-            if (this._Position < 0)
-            {
-                this._Completed = true;
-                return false;
-            }
-
-            // On défini Current et on continue
-            Current = this._Source[this._Position];
-
-            return true;
-        }
-
-        /// <summary>
-        /// Elément en cours de l'itération
-        /// </summary>
-        public T Current { get; private set; }
-
-        /// <summary>
-        /// Elément en cours pour la version non générique
-        /// </summary>
-        object System.Collections.IEnumerator.Current
-        {
-            get { return Current; }
-        }
-
-    }
+     /// <summary>
+     /// Enumérateur parcourant une liste dans le sens inverse
+     /// </summary>
+     public class ReverseEnumerator<T> : IEnumerator<T>
+     {
+         IList<T> _Source;
+         int _Position;
+         bool _Completed;
+ 
+         /// <summary>
+         /// Création d'un nouvel énumérateur
+         /// </summary>
+         public ReverseEnumerator(IList<T> source)
+         {
+             this._Source = source;
+             // On met -1 pour indiquer qu'on a pas commencé l'itération
+             this._Position = -1;
+             // L'itération n'est pas terminée
+             this._Completed = false;
+             // On défini Current avec la valeur par défaut
+             this.Current = default(T);
+         }
+ 
+         /// <summary>
+         /// Libération des ressources
+         /// </summary>
+         public void Dispose()
+         {
+             // On a rien à libérer , mais on marque notre itérateur comme terminé
+             this._Completed = true;
+         }
+ 
+         /// <summary>
+         /// Cette méthode est appelée lorsque l'on veut réinitialiser l'énumérateur
+         /// </summary>
+         public void Reset()
+         {
+             // On met -1 pour indiquer qu'on a pas commencer l'itération
+             this._Position = -1;
+             // L'itération n'est pas terminée
+             this._Completed = false;
+             // On défini Current avec la valeur par défaut
+             this.Current = default(T);
+         }
+ 
+         /// <summary>
+         /// On se déplace vers le prochain élément
+         /// </summary>
+         /// <returns>False lorsque l'itération est terminée</returns>
+         public bool MoveNext()
+         {
+             // Si la source est Null alors on a rien à parcourir, donc l'itération s'arrête
+             if (this._Source == null) return false;
+ 
+             // Si l'itération est terminée alors on ne va pas plus loin
+             if (this._Completed) return false;
+ 
+             // Si la position est à -1 on récupère le nombre d'éléments à parcourir pour démarrer l'itération
+             if (this._Position == -1)
+             {
+                 this._Position = _Source.Count;
+             }
+ 
+             // On se déplace dans la liste
+             this._Position--;
+ 
+             // Si on a atteind -1 alors on a terminé l'itération
+             if (this._Position < 0)
+             {
+                 this._Completed = true;
+                 return false;
+             }
+ 
+             // On défini Current et on continue
+             Current = this._Source[this._Position];
+ 
+             return true;
+         }
+ 
+         /// <summary>
+         /// Elément en cours de l'itération
+         /// </summary>
+         public T Current { get; private set; }
+ 
+         /// <summary>
+         /// Elément en cours pour la version non générique
+         /// </summary>
+         object System.Collections.IEnumerator.Current
+         {
+             get { return Current; }
+         }
+ 
+     }
 ```
 
 Comme on peut le voir le principe de l'implémentation est assez simple. 
