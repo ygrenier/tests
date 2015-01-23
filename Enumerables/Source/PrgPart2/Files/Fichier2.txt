@@ -1,0 +1,3 @@
+﻿Première ligne du second fichier.
+Deuxième ligne du second fichier.
+Troisième ligne du second fichier.
