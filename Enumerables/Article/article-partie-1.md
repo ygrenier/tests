@@ -260,5 +260,5 @@ Ce qu'il faut retenir :
 
 Le programme "PrgPart1" implémente des exemples des différents codes que j'ai fourni dans cet article. 
 
-La [seconde partie](article-partie-1.md) de cette article montrera comment générer des énumérateurs complexes de manière assez simple grâce au mot clé ```yield```.
+La [seconde partie](article-partie-2.md) de cette article montrera comment générer des énumérateurs complexes de manière assez simple grâce au mot clé ```yield```.
 
