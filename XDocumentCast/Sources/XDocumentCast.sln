@@ -12,7 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Github", "Github", "{CD4418
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Article", "Article", "{F8FC6D27-C5C0-4E35-B33D-C7FAFC38CC66}"
 	ProjectSection(SolutionItems) = preProject
-		..\Article\Article.md = ..\Article\Article.md
+		..\Article\Article-en-us.md = ..\Article\Article-en-us.md
+		..\Article\Article-fr-fr.md = ..\Article\Article-fr-fr.md
 	EndProjectSection
 EndProject
 Global

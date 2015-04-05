@@ -1,4 +1,7 @@
-﻿# La sérialisation avec XDocument
+Cet article traite de sérialisation/désérialisation avec XDocument via le casting direct des valeurs pour
+les types de base.
+
+# La sérialisation avec XDocument
 
 Depuis sa version 4.0, le Framework .Net nous fourni une nouvelle librairie pour gérer les 
 documents XML: `System.Linq.XDocument`.
@@ -7,7 +10,7 @@ Cette librairie et plutôt concue pour fonctionner avec LINQ (comme son espace d
 Elle permet de créer plus rapidement des documents, de parcourir avec des requêtes LINQ. En 
 revanche on perd le standard DOM ainsi que le XPath.
 
-L'un des particularité de XDocument est que l'on peut lui transmettre des objets comme
+L'une des particularité de XDocument est que l'on peut lui transmettre des objets comme
 contenu et il s'occupe de les convertir en valeur de noeud ou d'attribut. L'inverse est également
 vrai, on peut obtenir une valeur depuis un noeud ou un attribut directement en castant. Ces 
 mécanismes nous permettent de sérialiser/désérialiser rapidement un fichier XML quand on
@@ -76,7 +79,7 @@ une exception de casting aura lieu.
 
 Attention la recherche des attributs et des éléments par leur nom est sensible à la casse.
 
-# Désérialisation de valeur optionnelle
+## Désérialisation de valeur optionnelle
 
 Maintenant que se passe-t-il lorsque l'un des attributs ou éléments que nous voulons n'est pas
 présent dans le fichier ?
