@@ -1,5 +1,5 @@
-Cet article traite de sérialisation/désérialisation avec XDocument via le casting direct des valeurs pour
-les types de base.
+Cet article traite de sérialisation/désérialisation avec XDocument via le transtypage direct 
+des valeurs pour les types de base.
 
 # La sérialisation avec XDocument
 
@@ -12,7 +12,7 @@ revanche on perd le standard DOM ainsi que le XPath.
 
 L'une des particularité de XDocument est que l'on peut lui transmettre des objets comme
 contenu et il s'occupe de les convertir en valeur de noeud ou d'attribut. L'inverse est également
-vrai, on peut obtenir une valeur depuis un noeud ou un attribut directement en castant. Ces 
+vrai, on peut obtenir une valeur depuis un noeud ou un attribut directement en transtypant. Ces 
 mécanismes nous permettent de sérialiser/désérialiser rapidement un fichier XML quand on
 ne peut pas utiliser les mécanismes de sérialisation XML du .Net.
 
@@ -54,7 +54,7 @@ Cet exemple se trouve dans la méthode `Serialize1()` du programme d'exemple.
 
 # Désérialisation
 
-Pour désérialiser XDocument nous fourni également une approche assez simple, il suffit de caster
+Pour désérialiser XDocument nous fourni également une approche assez simple, il suffit de transtyper
 un noeud ou un attribut pour qu'il convertisse la valeur dans le type demandé.
  
 Si nous reprenons le fichier XML généré précédemment voilà comment on peut faire 
@@ -70,19 +70,19 @@ Console.WriteLine(" - Created : {0}", (DateTime)root.Element("created"));
 Console.WriteLine(" - Color : {0}", Enum.Parse(typeof(System.ConsoleColor), (string)root.Element("color"), true));
 ```
 
-Là où normalement on récupère un attribut ou un élément on le converti via un cast. La seule
-exception est dans les énumérés dont le casting n'est pas supporté par XDocument. Il nous faudra
+On récupère un attribut ou un élément et on le converti via un transtypage. La seule
+exception est dans les énumérés dont le transtypage n'est pas supporté par XDocument. Il nous faudra
 procédé comme d'habitude en demander l'analyse de la valeur texte.
 
 Bien sûr si la valeur contenue dans l'élément ou l'attribut n'est pas applicable au type demandé
-une exception de casting aura lieu.
+une exception de transtypage aura lieu.
 
 Attention la recherche des attributs et des éléments par leur nom est sensible à la casse.
 
 ## Désérialisation de valeur optionnelle
 
 Maintenant que se passe-t-il lorsque l'un des attributs ou éléments que nous voulons n'est pas
-présent dans le fichier ?
+présent dans le noeud ?
 
 Comme le noeud ou l'atttribut n'existe pas, une erreur `ArgumentNullException()` est levée.
 
@@ -118,15 +118,15 @@ et voilà ce que nous renvoi l'application :
 Nom du paramètre : element
 ```
 
-En clait seule la valeur castée en DateTime provoque une erreur, pas celle que l'on cast
+En clair seule la valeur transtypée en DateTime provoque une erreur, pas celle que l'on transtype
 en chaîne.
 
-En effet, lorsque l'on cherche à caster une valeur dont l'élément (ou l'attribut) n'existe pas, 
+En effet, lorsque l'on cherche à transtypeer une valeur dont l'élément (ou l'attribut) n'existe pas, 
 XDocument cherche à convertir la valeur en ```null```. Comme le type ```String``` est nullable
 nous n'avons pas d'exception de levée, en revanche ce n'est pas le cas du type ```DateTime```.
 
-Mais comme d'habitude XDocument fait bien les choses, car là où il supporte le cast vers
-des types de base, il supporte également le cast vers ces types dans leur versions nullables.
+Mais comme d'habitude XDocument fait bien les choses, car là où il supporte le transtypage vers
+des types de base, il supporte également le transtypage vers ces types dans leur versions nullables.
 
 Par exemple dans la méthode `Deserialize3()` nous reprenons l'exemple de `Deserialize2()`
 ainsi que `Deserialize1()` mais en utilisant des types nullables, et des valeurs par défaut 

@@ -9,23 +9,21 @@ This library is more built to be used with LINQ (as its namespace say it). It al
 quickly create documents, browse elements with LINQ query. But we lose the DOM standard
 and XPath query.
 
-L'un des particularité de XDocument est que l'on peut lui transmettre des objets comme
-contenu et il s'occupe de les convertir en valeur de noeud ou d'attribut. L'inverse est également
-vrai, on peut obtenir une valeur depuis un noeud ou un attribut directement en castant. Ces 
-mécanismes nous permettent de sérialiser/désérialiser rapidement un fichier XML quand on
-ne peut pas utiliser les mécanismes de sérialisation XML du .Net.
+One of feature of XDocument is we can use object as content, XDocument convert the objects
+to node or attribute value. The reverse is also true, we can get a value from a node or an
+attribute directly by casting. These mechanisms allow us to serialize/deserialize quickly
+an XML file when we can't use .Net XML serialization for exemple.
 
-## Sérialisation
+## Serialization
 
-La sérialisation est assez simple, il suffit de créer un noeud ou un attribut avec l'objet
-de sa valeur. XDocument va utiliser la méthode `ToString()` de l'objet pour convertir la
-valeur en texte.
+Serialization is simple, we just need to create a node or an attribute with the object
+as value. XDocument will use the object method `ToString()` to convert the value to text.
 
-Là où c'est intéressant pour les "non anglais" qui doivent internationaliser leur fichier XML
-les types de base (int, double, datetime, etc.) sont formatés avec une culture invariante, ou
-en format international pour les dates.
+Where it is interesting for the "non-english" (french for example ;)) which need internationalize
+their XML files, the basics types (int, double, datetime, etc.) are formatted with the 
+invariant culture, or an international format for the dates.
 
-Par exemple le document suivant :
+Exemple the following code :
 
 ``` CSharp
 new XDocument(
@@ -39,7 +37,7 @@ new XDocument(
     );
 ```
 
-génère le document XML suivant :
+generate this XML document :
 
 ``` XML
 <root code="Exemple 1" date="2015-04-02T07:31:13.8253366+02:00">
@@ -49,15 +47,15 @@ génère le document XML suivant :
 </root>
 ```
 
-Cet exemple se trouve dans la méthode `Serialize1()` du programme d'exemple.
+This sample can be find in the `Serialize1()` method int the sample program.
 
-# Désérialisation
+# Deserialization
 
-Pour désérialiser XDocument nous fourni également une approche assez simple, il suffit de caster
-un noeud ou un attribut pour qu'il convertisse la valeur dans le type demandé.
+For deserialize XDocument provide us a simple method too, we just need to cast a node or an
+attribute to convert the value to the asked type.
  
-Si nous reprenons le fichier XML généré précédemment voilà comment on peut faire 
-(méthode `Deserialize1()` du programme d'exemple) :
+If we take the generated XML previously, how we can make to read
+(`Deserialize1()` method in the sample program) :
 
 ```CSharp
 XDocument xdoc = XDocument.Load("sample-1.xml");
@@ -69,23 +67,22 @@ Console.WriteLine(" - Created : {0}", (DateTime)root.Element("created"));
 Console.WriteLine(" - Color : {0}", Enum.Parse(typeof(System.ConsoleColor), (string)root.Element("color"), true));
 ```
 
-Là où normalement on récupère un attribut ou un élément on le converti via un cast. La seule
-exception est dans les énumérés dont le casting n'est pas supporté par XDocument. Il nous faudra
-procédé comme d'habitude en demander l'analyse de la valeur texte.
+We retreive the attribut or the element and we convert it by casting. The only exception
+is for the enums whose casting is not supported by XDocument. We will need to process as usual
+by parsing the text value.
 
-Bien sûr si la valeur contenue dans l'élément ou l'attribut n'est pas applicable au type demandé
-une exception de casting aura lieu.
+Of course if the value contained un the element or the attribute can't be converted to the
+requested type, a cast exception will be thrown.
 
-Attention la recherche des attributs et des éléments par leur nom est sensible à la casse.
+Remark: the search of attributes or elements by name is case sensitive.
 
-## Désérialisation de valeur optionnelle
+## Deserialiaation of optional value
 
-Maintenant que se passe-t-il lorsque l'un des attributs ou éléments que nous voulons n'est pas
-présent dans le fichier ?
+Now, what appends when one of attributes or elements that we want is missing ?
 
-Comme le noeud ou l'atttribut n'existe pas, une erreur `ArgumentNullException()` est levée.
+Because the node or attribute not exists, an `ArgumentNullException()` is thrown.
 
-Dans la méthode `Deserialize2()` nous essayons de lire deux valeurs qui n'existent pas :
+In the `Deserialize2()` method we trying to read two values that not exists :
 
 ```CSharp
 XDocument xdoc = XDocument.Load("sample-1.xml");
@@ -108,28 +105,27 @@ catch (Exception ex)
 }
 ```
 
-et voilà ce que nous renvoi l'application :
+and that the application display :
 
 ```
 * Désérialisation 2
  - Name :
- - Number : Erreur => La valeur ne peut pas être null.
-Nom du paramètre : element
+ - Number : Erreur => The value can't be null.
+Parameter : element
 ```
 
-En clait seule la valeur castée en DateTime provoque une erreur, pas celle que l'on cast
-en chaîne.
+Apparently only the DateTime cast throw an error, not the string cast.
 
-En effet, lorsque l'on cherche à caster une valeur dont l'élément (ou l'attribut) n'existe pas, 
-XDocument cherche à convertir la valeur en ```null```. Comme le type ```String``` est nullable
-nous n'avons pas d'exception de levée, en revanche ce n'est pas le cas du type ```DateTime```.
+In fact, when we want to cast the value of a missing element (or attribute), XDocument
+try to convert the value to ```null```. As the ```String``` type is nullable we don't
+have exception thrown, however this is not the case of the ```DateTime``` type.
 
-Mais comme d'habitude XDocument fait bien les choses, car là où il supporte le cast vers
-des types de base, il supporte également le cast vers ces types dans leur versions nullables.
+But as usual, XDocument help us, because as it supports the base types casting, it supports
+casting to the nullable version of these types.
 
-Par exemple dans la méthode `Deserialize3()` nous reprenons l'exemple de `Deserialize2()`
-ainsi que `Deserialize1()` mais en utilisant des types nullables, et des valeurs par défaut 
-au cas où les valeurs n'existent pas dans le XML.
+For examplt in the `Deserialize3()` method, we reuse the `Deserialize2()` code with
+the `Deserialize1()` code, but this time we use nullable types, and default valuer in case
+of the values not exists in the XML.
 
 ```CSharp
 XDocument xdoc = XDocument.Load("sample-1.xml");
@@ -147,12 +143,11 @@ if (!Enum.TryParse((string)root.Element("color"), true, out col))
 Console.WriteLine(" - Color : {0}", col);
 ```
 
-De cette manière nous nous protégeons des valeurs pouvant manquer. Bien entendu si cette valeur
-est obligatoire, on peut maintenir un type non nullable.
+By this way, we are protected from missing values. Of course if a value is required, 
+we can maintain a non-nullable type.
 
-Nous constatons également que les énumérés ne sont pas toujours bien loti. Nous devons
-faire des tests.
+We are also seeing that the enums are not always well off. We need to do tests.
 
-Pour résoudre ce problème nous pouvons toujours créer des méthodes d'extensions pour nous
-faciliter la vie.
+To resolve this problem we can create an extension methods to make ou life easier.
+
 

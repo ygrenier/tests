@@ -10,6 +10,7 @@ namespace XDocumentCast
     {
         /// <summary>
         /// Premier exemple de sérialisation
+        /// First sample for serialization
         /// </summary>
         static XDocument Serialize1()
         {
@@ -26,6 +27,7 @@ namespace XDocumentCast
 
         /// <summary>
         /// Premier exemple de désérialisation
+        /// First sample for deserialization
         /// </summary>
         static void Deserialize1()
         {
@@ -40,6 +42,7 @@ namespace XDocumentCast
 
         /// <summary>
         /// Second exemple de désérialisation
+        /// Second sample for deserialization
         /// </summary>
         static void Deserialize2()
         {
@@ -65,6 +68,7 @@ namespace XDocumentCast
 
         /// <summary>
         /// Troisième exemple de désérialisation
+        /// Third sample for deserialization
         /// </summary>
         static void Deserialize3()
         {
@@ -88,22 +92,22 @@ namespace XDocumentCast
             Console.Write("Culture en cours :");
             Console.WriteLine(System.Globalization.CultureInfo.CurrentCulture.DisplayName);
 
-            // Sérialisation
-            Console.WriteLine("* Sérialisation 1");
+            // Sérialisation / Serialization
+            Console.WriteLine("* Serialization 1");
             XDocument xdoc = Serialize1();
             Console.WriteLine(xdoc.ToString(SaveOptions.None));
             Console.WriteLine("");
 
-            // Désérialisation
-            Console.WriteLine("* Désérialisation 1");
+            // Désérialisation / Deserialization
+            Console.WriteLine("* Deserialization 1");
             Deserialize1();
             Console.WriteLine("");
 
-            Console.WriteLine("* Désérialisation 2");
+            Console.WriteLine("* Deserialization 2");
             Deserialize2();
             Console.WriteLine("");
 
-            Console.WriteLine("* Désérialisation 3");
+            Console.WriteLine("* Deserialization 3");
             Deserialize3();
             Console.WriteLine("");
 
