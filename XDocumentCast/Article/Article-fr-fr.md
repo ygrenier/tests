@@ -6,7 +6,7 @@ des valeurs pour les types de base.
 Depuis sa version 4.0, le Framework .Net nous fourni une nouvelle librairie pour gérer les 
 documents XML: `System.Linq.XDocument`.
 
-Cette librairie et plutôt concue pour fonctionner avec LINQ (comme son espace de nom nous l'indique). 
+Cette librairie et plutôt conçue pour fonctionner avec LINQ (comme son espace de nom nous l'indique). 
 Elle permet de créer plus rapidement des documents, de parcourir avec des requêtes LINQ. En 
 revanche on perd le standard DOM ainsi que le XPath.
 

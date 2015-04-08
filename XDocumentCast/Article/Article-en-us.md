@@ -5,23 +5,21 @@ values casting.
 
 Since his version 4.0, the .Net Framework provide a new library for managing XML documents : `System.Linq.XDocument`.
 
-This library is more built to be used with LINQ (as its namespace say it). It allow to
+This library is more built to be used with LINQ (as the namespace say it). It allow to
 quickly create documents, browse elements with LINQ query. But we lose the DOM standard
 and XPath query.
 
-One of feature of XDocument is we can use object as content, XDocument convert the objects
+One of feature of XDocument is that we can use object as content, XDocument convert the objects
 to node or attribute value. The reverse is also true, we can get a value from a node or an
 attribute directly by casting. These mechanisms allow us to serialize/deserialize quickly
-an XML file when we can't use .Net XML serialization for exemple.
+an XML file when we can't use .Net XML serialization for example.
 
 ## Serialization
 
 Serialization is simple, we just need to create a node or an attribute with the object
 as value. XDocument will use the object method `ToString()` to convert the value to text.
 
-Where it is interesting for the "non-english" (french for example ;)) which need internationalize
-their XML files, the basics types (int, double, datetime, etc.) are formatted with the 
-invariant culture, or an international format for the dates.
+Where it is interesting for the "non-english" (french for example ;)) which need internationalize their XML files, the basics types (int, double, datetime, etc.) are formatted with the invariant culture, or an international format for the dates.
 
 Exemple the following code :
 
@@ -47,15 +45,14 @@ generate this XML document :
 </root>
 ```
 
-This sample can be find in the `Serialize1()` method int the sample program.
+This sample can be find in the `Serialize1()` method in the sample program.
 
 # Deserialization
 
 For deserialize XDocument provide us a simple method too, we just need to cast a node or an
-attribute to convert the value to the asked type.
+attribute to convert the value to the requested type.
  
-If we take the generated XML previously, how we can make to read
-(`Deserialize1()` method in the sample program) :
+If we take the generated XML previously, how we can make to read (`Deserialize1()` method in the sample program) :
 
 ```CSharp
 XDocument xdoc = XDocument.Load("sample-1.xml");
@@ -71,7 +68,7 @@ We retreive the attribut or the element and we convert it by casting. The only e
 is for the enums whose casting is not supported by XDocument. We will need to process as usual
 by parsing the text value.
 
-Of course if the value contained un the element or the attribute can't be converted to the
+Of course if the value contained in the element or the attribute can't be converted to the
 requested type, a cast exception will be thrown.
 
 Remark: the search of attributes or elements by name is case sensitive.
@@ -120,11 +117,10 @@ In fact, when we want to cast the value of a missing element (or attribute), XDo
 try to convert the value to ```null```. As the ```String``` type is nullable we don't
 have exception thrown, however this is not the case of the ```DateTime``` type.
 
-But as usual, XDocument help us, because as it supports the base types casting, it supports
-casting to the nullable version of these types.
+But as usual, XDocument help us, like it supports the base types casting, it supports casting to the nullable version of these types.
 
-For examplt in the `Deserialize3()` method, we reuse the `Deserialize2()` code with
-the `Deserialize1()` code, but this time we use nullable types, and default valuer in case
+For example in the `Deserialize3()` method, we reuse the `Deserialize2()` code with
+the `Deserialize1()` code, but this time we use nullable types, and default value in case
 of the values not exists in the XML.
 
 ```CSharp
@@ -148,6 +144,6 @@ we can maintain a non-nullable type.
 
 We are also seeing that the enums are not always well off. We need to do tests.
 
-To resolve this problem we can create an extension methods to make ou life easier.
+To resolve this problem we can create an extension methods to make or life easier.
 
 
