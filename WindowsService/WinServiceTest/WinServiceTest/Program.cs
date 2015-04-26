@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration.Install;
 using System.Linq;
 using System.Reflection;
 using System.ServiceProcess;
@@ -10,6 +11,15 @@ namespace WinServiceTest
 {
     static class Program
     {
+
+        /// <summary>
+        /// Utilitaire permettant de déterminer si nous avons une commande dans les arguments de commande en ligne
+        /// </summary>
+        static bool HasCommand(String[] args, String command)
+        {
+            if (args == null || args.Length == 0 || String.IsNullOrWhiteSpace(command)) return false;
+            return args.Any(a => String.Equals(a, command, StringComparison.OrdinalIgnoreCase));
+        }
 
         /// <summary>
         /// Exécute les services en mode interactif
@@ -60,7 +70,7 @@ namespace WinServiceTest
         /// <summary>
         /// Point d'entrée principal de l'application.
         /// </summary>
-        static void Main()
+        static void Main(String[] args)
         {
             // Initialisation du service à démarrer
             ServiceBase[] ServicesToRun;
@@ -69,11 +79,49 @@ namespace WinServiceTest
                 new svcMyService() 
             };
 
-            // On est en mode intéractif et débogage ?
-            if (Environment.UserInteractive && System.Diagnostics.Debugger.IsAttached)
+            // On est en mode intéractif ?
+            if (Environment.UserInteractive)
             {
-                // Simule l'exécution des services
-                RunInteractiveServices(ServicesToRun);
+                // On est en mode débogage ?
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+                    // Simule l'exécution des services
+                    RunInteractiveServices(ServicesToRun);
+                }
+                else
+                {
+                    try
+                    {
+                        bool hasCommands = false;
+                        // On a une commande d'installation ?
+                        if (HasCommand(args, "install"))
+                        {
+                            ManagedInstallerClass.InstallHelper(new String[] { typeof(Program).Assembly.Location });
+                            hasCommands = true;
+                        }
+                        // On a une commande de désintallation ?
+                        if (HasCommand(args, "uninstall"))
+                        {
+                            ManagedInstallerClass.InstallHelper(new String[] { "/u", typeof(Program).Assembly.Location });
+                            hasCommands = true;
+                        }
+                        // Si on a pas de commandes on affiche un message d'aide
+                        if (!hasCommands)
+                        {
+                            Console.WriteLine("Usage : {0} [command] [command ...]", Environment.GetCommandLineArgs());
+                            Console.WriteLine("Commandes : ");
+                            Console.WriteLine(" - install : Installation du service");
+                            Console.WriteLine(" - uninstall : Désinstallation du service");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        var oldColor = Console.BackgroundColor;
+                        Console.BackgroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Erreur : {0}", ex.GetBaseException().Message);
+                        Console.BackgroundColor = oldColor;
+                    }
+                }
             }
             else
             {

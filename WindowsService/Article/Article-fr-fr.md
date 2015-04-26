@@ -191,13 +191,105 @@ Un service, lorsqu'il démarre, exécute certaines tâches (création d'une sour
 
 # Installation et Désinstallation du service
 
-Un service pour bien fonctionner, doit être installé (il s'enregistre auprès du ServiceManager de Windows). Pour installer un service compilé en .Net il faut utiliser la commande "InstallUtil.exe" se trouvant dans le dossier du Framework .Net concerné.
+Un service pour fonctionner, doit être installé (il s'enregistre auprès du ServiceManager de Windows). Pour installer un service compilé en .Net il faut utiliser la commande "InstallUtil.exe" se trouvant dans le dossier du Framework .Net concerné.
 
-C'est vite long à écrire, ou tout simplement dans une phase d'installation de votre service via un installeur, il faut repérer le bon dossier, etc.
+Cette commande est parfois un peu longue à écrire, de même que lorsqu'il faut installer le service via un installeur, il est nécessaire de repérer le dossier du framework corrspondant, etc.
 
-Comme maintenant j'ai une application console comme service, je vais me faciliter la vie en permettant de provoquer l'installation et la désinstallation de mon service via des arguments de mon application console.
+Comme nous avons maintenant une application console, nous pouvons l'utiliser pour nous faciliter le travail. Par exemple en utisant des arguments de commande en ligne pour installer/désinstaller le service. 
 
-&nbsp;
+Pour gérer cette installation/désinstallation nous avons à notre disposition une classe `System.Configuration.Install.ManagedInstallerClass` qui possède des méthodes utilitaires pour celà.
+
+Nous allons donc modifier notre application console pour supporter des 'commandes' d'installation (`install`) et de désinstallation (`uninstall`).
+
+Nous allons devoir modifier le comportement de notre application:
+- si on est en mode débogage on exécute de manière interactive les services
+- si on est en mode interactif, on vérifie si on a des commandes. Si c'est le cas on exécute nos commandes, sinon on affiche un message d'aide.
+- si on est pas en mode interactif, on exécute normalement les services.
+
+On créé une méthode `HasCommand` nous permettant de déterminer si on a une commande spécifique dans la ligne de commande :
+``` csharp
+
+/// <summary>
+/// Utilitaire permettant de déterminer si nous avons une commande dans les arguments de commande en ligne
+/// </summary>
+static bool HasCommand(String[] args, String command)
+{
+    if (args == null || args.Length == 0 || String.IsNullOrWhiteSpace(command)) return false;
+    return args.Any(a => String.Equals(a, command, StringComparison.OrdinalIgnoreCase));
+}
+
+```
+
+Ensuite nous modifions notre méthode Main pour supporter les arguments, et pour traiter les commandes :
+
+``` csharp
+
+/// <summary>
+/// Point d'entrée principal de l'application.
+/// </summary>
+static void Main(String[] args)
+{
+    // Initialisation du service à démarrer
+    ServiceBase[] ServicesToRun;
+    ServicesToRun = new ServiceBase[] 
+    { 
+        new svcMyService() 
+    };
+
+    // On est en mode intéractif ?
+    if (Environment.UserInteractive)
+    {
+        // On est en mode débogage ?
+        if (System.Diagnostics.Debugger.IsAttached)
+        {
+            // Simule l'exécution des services
+            RunInteractiveServices(ServicesToRun);
+        }
+        else
+        {
+            try
+            {
+                bool hasCommands = false;
+                // On a une commande d'installation ?
+                if (HasCommand(args, "install"))
+                {
+                    ManagedInstallerClass.InstallHelper(new String[] { typeof(Program).Assembly.Location });
+                    hasCommands = true;
+                }
+                // On a une commande de désintallation ?
+                if (HasCommand(args, "uninstall"))
+                {
+                    ManagedInstallerClass.InstallHelper(new String[] { "/u", typeof(Program).Assembly.Location });
+                    hasCommands = true;
+                }
+                // Si on a pas de commandes on affiche un message d'aide
+                if (!hasCommands)
+                {
+                    Console.WriteLine("Usage : {0} [command] [command ...]", Environment.GetCommandLineArgs());
+                    Console.WriteLine("Commandes : ");
+                    Console.WriteLine(" - install : Installation du service");
+                    Console.WriteLine(" - uninstall : Désinstallation du service");
+                }
+            }
+            catch (Exception ex)
+            {
+                var oldColor = Console.BackgroundColor;
+                Console.BackgroundColor = ConsoleColor.Red;
+                Console.WriteLine("Erreur : {0}", ex.GetBaseException().Message);
+                Console.BackgroundColor = oldColor;
+            }
+        }
+    }
+    else
+    {
+        // Exécute les services normalement
+        ServiceBase.Run(ServicesToRun);
+    }
+}
+
+```
+
+
 <h1>Démarrage et Arrêt du service</h1>
 Même principe que pour l'installation, pour démarrer et arrêter notre service nous devons passer par une ligne de commande "net start/stop" ou par le gestionnaire de service.
 
