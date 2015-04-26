@@ -99,6 +99,28 @@ namespace WinServiceTest
                             ManagedInstallerClass.InstallHelper(new String[] { typeof(Program).Assembly.Location });
                             hasCommands = true;
                         }
+                        // On a une commande de démarrage ?
+                        if (HasCommand(args, "start"))
+                        {
+                            foreach (var service in ServicesToRun)
+                            {
+                                ServiceController sc = new ServiceController(service.ServiceName);
+                                sc.Start();
+                                sc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+                            }
+                            hasCommands = true;
+                        }
+                        // On a une commande d'arrêt ?
+                        if (HasCommand(args, "stop"))
+                        {
+                            foreach (var service in ServicesToRun)
+                            {
+                                ServiceController sc = new ServiceController(service.ServiceName);
+                                sc.Stop();
+                                sc.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+                            }
+                            hasCommands = false;
+                        }
                         // On a une commande de désintallation ?
                         if (HasCommand(args, "uninstall"))
                         {
@@ -112,14 +134,16 @@ namespace WinServiceTest
                             Console.WriteLine("Commandes : ");
                             Console.WriteLine(" - install : Installation du service");
                             Console.WriteLine(" - uninstall : Désinstallation du service");
+                            Console.WriteLine(" - start : Démarre le service");
+                            Console.WriteLine(" - stop : Arrête le service");
                         }
                     }
                     catch (Exception ex)
                     {
-                        var oldColor = Console.BackgroundColor;
-                        Console.BackgroundColor = ConsoleColor.Red;
+                        var oldColor = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Erreur : {0}", ex.GetBaseException().Message);
-                        Console.BackgroundColor = oldColor;
+                        Console.ForegroundColor = oldColor;
                     }
                 }
             }

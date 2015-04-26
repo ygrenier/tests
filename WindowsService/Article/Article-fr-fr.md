@@ -289,10 +289,58 @@ static void Main(String[] args)
 
 ```
 
+# Démarrage et Arrêt du service
 
-<h1>Démarrage et Arrêt du service</h1>
 Même principe que pour l'installation, pour démarrer et arrêter notre service nous devons passer par une ligne de commande "net start/stop" ou par le gestionnaire de service.
 
-Pour les mêmes raisons que précédemment, on va faire de sorte de pouvoir démarrer ou arrêter le service grâce à des arguments de l'application console.
+Pour les mêmes raisons que précédemment, on va faire de sorte de pouvoir démarrer ou arrêter le service grâce à des arguments de l'application console. Pour celà on utilise la classe `System.ServiceProcess.ServiceController`.
 
-&nbsp;
+Nous allons donc ajoutons deux commandes `start` et `stop` entre nos deux commandes d'installation et de déinstallation.
+
+``` csharp
+
+...
+// On a une commande de démarrage ?
+if (HasCommand(args, "start"))
+{
+    foreach (var service in ServicesToRun)
+    {
+        ServiceController sc = new ServiceController(service.ServiceName);
+        sc.Start();
+        sc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+    }
+    hasCommands = true;
+}
+// On a une commande d'arrêt ?
+if (HasCommand(args, "stop"))
+{
+    foreach (var service in ServicesToRun)
+    {
+        ServiceController sc = new ServiceController(service.ServiceName);
+        sc.Stop();
+        sc.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+    }
+    hasCommands = false;
+}
+...
+
+```
+
+La manière dont nous traitons les commandes nous permet de combiner l'installation et le démarrage en une seule commande en ligne. De même que pour l'arrêt et la désinstallation.
+
+```
+WinServiceTest.exe install start
+WinServiceTest.exe uninstall stop
+```
+
+L'ordre des commandes n'est pas important car nous testons les commandes dans l'ordre qui nous importe (on teste 'stop' avant de tester 'uninstall').
+
+# Aller plus loin
+
+Bien sûr on peut ajouter différentes commandes utilitaires.
+
+## Commande combinant installation et démarrage
+
+On créer une commande qui va traiter une seule commande pour l'installataion et le démarrage. De même que l'arrêt et la désinstallation.
+
+
