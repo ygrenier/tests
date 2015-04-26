@@ -91,20 +91,106 @@ La première étape est de modifier le type d'application du projet.
 - Dans l'onglet "Application", zone "Type de sortie" sélectionner "Application Console" ("Application Windows" par défaut).
 - Enregistrer les modifications.
 
+Ensuite l'idée est de déterminer si on est mode service ou en mode débogage, pour celà il suffit de savoir si on est en mode interactif, grâce à la propriété `Environment.UserInteractive` et si on est en débogage avec la propriété `System.Diagnostics.Debugger.IsAttached`.
 
-++CODE++
+Dans le fichier "Program.cs" on modifie le code de la méthode Main de cette manière
 
-<h2>Avantages</h2>
+``` charp
+/// <summary>
+/// Point d'entrée principal de l'application.
+/// </summary>
+static void Main()
+{
+    // Initialisation du service à démarrer
+    ServiceBase[] ServicesToRun;
+    ServicesToRun = new ServiceBase[] 
+    { 
+        new svcMyService() 
+    };
+
+    // On est en mode intéractif et débogage ?
+    if (Environment.UserInteractive && System.Diagnostics.Debugger.IsAttached)
+    {
+        // Simule l'exécution des services
+        RunInteractiveServices(ServicesToRun);
+    }
+    else
+    {
+        // Exécute les services normalement
+        ServiceBase.Run(ServicesToRun);
+    }
+}
+```
+
+Ensuite on ajoute la méthode "RunInteractiveServices" qui va démarrer chaque service :
+
+``` csharp
+/// <summary>
+/// Exécute les services en mode interactif
+/// </summary>
+static void RunInteractiveServices(ServiceBase[] servicesToRun)
+{
+    Console.WriteLine();
+    Console.WriteLine("Démarrage des services en mode intéractif.");
+    Console.WriteLine();
+
+    // Récupération de la méthode a exécuter sur chaque service pour le démarrer 
+    MethodInfo onStartMethod = typeof(ServiceBase).GetMethod("OnStart", BindingFlags.Instance | BindingFlags.NonPublic);
+
+    // Boucle de démarrage des services
+    foreach (ServiceBase service in servicesToRun)
+    {
+        Console.Write("Démarrage de {0} ... ", service.ServiceName);
+        onStartMethod.Invoke(service, new object[] { new string[] { } });
+        Console.WriteLine("Démarré");
+    }
+
+    // Attente de la fin
+    Console.WriteLine();
+    Console.WriteLine("Appuyer sur une touche pour arrêter les services et terminer le processus...");
+    Console.ReadKey();
+    Console.WriteLine();
+
+    // Récupération de la méthode à exécuter sur chaque service pour l'arrêter
+    MethodInfo onStopMethod = typeof(ServiceBase).GetMethod("OnStop", BindingFlags.Instance | BindingFlags.NonPublic);
+
+    // Boucle d'arrêt
+    foreach (ServiceBase service in servicesToRun)
+    {
+        Console.Write("Arrêt de {0} ... ", service.ServiceName);
+        onStopMethod.Invoke(service, null);
+        Console.WriteLine("Arrêté");
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("Tous les services sont arrêtés.");
+
+    // Attend l'appui d'une touche pour ne pas retourner directement à VS
+    Console.WriteLine();
+    Console.Write("=== Appuyer sur une touche pour quitter ===");
+    Console.ReadKey();
+}
+
+```
+
+Chaque service démarre dans son propre thread, nous n'avons pas à le gérer.
+
+## Avantages
+
 Donc le premier avantage c'est de pouvoir déboguer toute la chaîne de démarrage de votre service.
 
 Autre avantage c'est que vous pouvez créer un mécanisme de log qui s'affiche sur la console, c'est lisible et direct.
-<h2>Inconvénients</h2>
+
+## Inconvénients
+
 Il y a toutefois quelques inconvénients.
 
 Un service Windows s'exécute de manière générale avec un compte Administrateur (LocalSystem, LocalNetwork, etc.), ce qui peut vous poser des problèmes de droit en fonction de ce que fait votre service. Vous pouvez résoudre ce souci en exécutant Visual Studio en tant qu'administrateur, en lancer votre service il aura des droits administrateurs.
 
 Un service, lorsqu'il démarre, exécute certaines tâches (création d'une source dans les journaux Windows, etc.) notre petite application ne fait rien de tout ça. A vous de préparer le terrain convenablement pour déboguer votre service.
-<h1>Installation et Désinstallation du service</h1>
+
+# Installation et Désinstallation du service
+
 Un service pour bien fonctionner, doit être installé (il s'enregistre auprès du ServiceManager de Windows). Pour installer un service compilé en .Net il faut utiliser la commande "InstallUtil.exe" se trouvant dans le dossier du Framework .Net concerné.
 
 C'est vite long à écrire, ou tout simplement dans une phase d'installation de votre service via un installeur, il faut repérer le bon dossier, etc.
