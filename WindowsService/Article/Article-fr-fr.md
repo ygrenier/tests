@@ -95,7 +95,7 @@ Ensuite l'idée est de déterminer si on est mode service ou en mode débogage, 
 
 Dans le fichier "Program.cs" on modifie le code de la méthode Main de cette manière
 
-``` charp
+``` csharp
 /// <summary>
 /// Point d'entrée principal de l'application.
 /// </summary>
