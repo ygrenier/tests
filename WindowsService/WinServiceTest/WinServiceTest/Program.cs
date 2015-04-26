@@ -62,9 +62,12 @@ namespace WinServiceTest
             Console.WriteLine("Tous les services sont arrêtés.");
 
             // Attend l'appui d'une touche pour ne pas retourner directement à VS
-            Console.WriteLine();
-            Console.Write("=== Appuyer sur une touche pour quitter ===");
-            Console.ReadKey();
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                Console.WriteLine();
+                Console.Write("=== Appuyer sur une touche pour quitter ===");
+                Console.ReadKey();
+            }
         }
 
         /// <summary>
@@ -93,6 +96,41 @@ namespace WinServiceTest
                     try
                     {
                         bool hasCommands = false;
+                        // On a une commande pour exécuter les services en mode interactif ?
+                        if (HasCommand(args, "run-services"))
+                        {
+                            RunInteractiveServices(ServicesToRun);
+                            // On ne traite pas les autres commandes
+                            return;
+                        }
+                        // On a une commande pour installer et démarre les services ?
+                        if (HasCommand(args, "start-services"))
+                        {
+                            // Installation
+                            ManagedInstallerClass.InstallHelper(new String[] { typeof(Program).Assembly.Location });
+                            // Démarrage
+                            foreach (var service in ServicesToRun)
+                            {
+                                ServiceController sc = new ServiceController(service.ServiceName);
+                                sc.Start();
+                                sc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+                            }
+                            hasCommands = true;
+                        }
+                        // On a une commande pour arrêter et désinstaller les services ?
+                        if (HasCommand(args, "stop-services"))
+                        {
+                            // Arrêt
+                            foreach (var service in ServicesToRun)
+                            {
+                                ServiceController sc = new ServiceController(service.ServiceName);
+                                sc.Stop();
+                                sc.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+                            }
+                            // Désinstallation
+                            ManagedInstallerClass.InstallHelper(new String[] { "/u", typeof(Program).Assembly.Location });
+                            hasCommands = true;
+                        }
                         // On a une commande d'installation ?
                         if (HasCommand(args, "install"))
                         {
@@ -132,10 +170,13 @@ namespace WinServiceTest
                         {
                             Console.WriteLine("Usage : {0} [command] [command ...]", Environment.GetCommandLineArgs());
                             Console.WriteLine("Commandes : ");
-                            Console.WriteLine(" - install : Installation du service");
-                            Console.WriteLine(" - uninstall : Désinstallation du service");
-                            Console.WriteLine(" - start : Démarre le service");
-                            Console.WriteLine(" - stop : Arrête le service");
+                            Console.WriteLine(" - install : Installation des services");
+                            Console.WriteLine(" - uninstall : Désinstallation des services");
+                            Console.WriteLine(" - start : Démarre les services");
+                            Console.WriteLine(" - stop : Arrête les services");
+                            Console.WriteLine(" - start-services : Installe et démarre les services");
+                            Console.WriteLine(" - stop-services : Arrête et désinstalle les services");
+                            Console.WriteLine(" - run-services : Exécute les services en mode interactif");
                         }
                     }
                     catch (Exception ex)

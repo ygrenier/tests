@@ -343,4 +343,11 @@ Bien sûr on peut ajouter différentes commandes utilitaires.
 
 On créer une commande qui va traiter une seule commande pour l'installataion et le démarrage. De même que l'arrêt et la désinstallation.
 
+Dans notre exemple, nous implémentons celà avec les commandes 'start-services' et 'stop-services', nous exécutons ces commandes en priorité.
+
+## Exécuter les services en mode interactif
+
+Nous exécutons les services en mode interactif uniquement en mode débogage. Toutefois il peut vous être utile d'exécuter les services en mode interactif. Vous pouvez par conséquent ajouter une commande pour exécuter les services.
+
+Dans notre exemple, nous implémentons celà avec la commande 'run-services'.
 
