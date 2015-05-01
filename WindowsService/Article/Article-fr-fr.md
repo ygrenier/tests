@@ -189,6 +189,11 @@ Un service Windows s'exécute de manière générale avec un compte Administrate
 
 Un service, lorsqu'il démarre, exécute certaines tâches (création d'une source dans les journaux Windows, etc.) notre petite application ne fait rien de tout ça. A vous de préparer le terrain convenablement pour déboguer votre service.
 
+## Remarque
+
+Attention ce mode ne vous affranchit pas de déboguer en mode service, il vous permet de déboguer plus rapidement votre service, mais faîtes des tests en mode service pour s'assurer du bon fonctionnement de votre service dans son mode normal.
+
+
 # Installation et Désinstallation du service
 
 Un service pour fonctionner, doit être installé (il s'enregistre auprès du ServiceManager de Windows). Pour installer un service compilé en .Net il faut utiliser la commande "InstallUtil.exe" se trouvant dans le dossier du Framework .Net concerné.
@@ -204,7 +209,7 @@ Nous allons donc modifier notre application console pour supporter des 'commande
 Nous allons devoir modifier le comportement de notre application:
 - si on est en mode débogage on exécute de manière interactive les services
 - si on est en mode interactif, on vérifie si on a des commandes. Si c'est le cas on exécute nos commandes, sinon on affiche un message d'aide.
-- si on est pas en mode interactif, on exécute normalement les services.
+- si on n'est pas en mode interactif, on exécute normalement les services.
 
 On créé une méthode `HasCommand` nous permettant de déterminer si on a une commande spécifique dans la ligne de commande :
 ``` csharp
