@@ -67,7 +67,8 @@ Normalement tout fonctionne:
 On peut tout arrêter:
 
 ```
-net stop "My Service""%SystemRoot%\Microsoft.NET\Framework\v4.0.30319\InstallUtil.exe" /u WinServiceTest.exe
+net stop "My Service"
+"%SystemRoot%\Microsoft.NET\Framework\v4.0.30319\InstallUtil.exe" /u WinServiceTest.exe
 ```
 
 # Déboguer un Service Windows
