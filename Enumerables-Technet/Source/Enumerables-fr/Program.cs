@@ -33,6 +33,33 @@ namespace Enumerables
             };
         }
 
+        /// <summary>
+        /// Liste de personnes
+        /// </summary>
+        static IEnumerable<Person> GetPersons()
+        {
+            yield return new Person() {
+                Name = "Toto",
+                BirthDay = null,
+                IsFamily = true
+            };
+            yield return new Person() {
+                Name = "Titi",
+                BirthDay = new DateTime(2010, 11, 27),
+                IsFamily = false
+            };
+            yield return new Person() {
+                Name = "Tata",
+                BirthDay = null,
+                IsFamily = false
+            };
+            yield return new Person() {
+                Name = "Tutu",
+                BirthDay = new DateTime(1994, 8, 11),
+                IsFamily = true
+            };
+        }
+
         #region Exemple boucles
 
         /// <summary>
@@ -378,6 +405,99 @@ namespace Enumerables
 
         #endregion
 
+        #region Exemples LINQ
+
+        /// <summary>
+        /// Simple requête LINQ
+        /// </summary>
+        static void TestLinqRequest()
+        {
+            var query = from p in GetPersons()
+                        where p.IsFamily
+                        orderby p.Name
+                        select p;
+
+            foreach (var p in query)
+                Console.WriteLine(p.Name);
+
+            foreach (var p in query.Take(2))
+                Console.WriteLine(p.Name);
+        }
+
+        /// <summary>
+        /// Simple requête LINQ en mode fluent
+        /// </summary>
+        static void TestLinqRequestAsFluent()
+        {
+            var query = GetPersons()
+                .Where(p => p.IsFamily)
+                .OrderBy(p => p.Name)
+                ;
+
+            foreach (var p in query)
+                Console.WriteLine(p.Name);
+
+            foreach (var p in query.Take(2))
+                Console.WriteLine(p.Name);
+        }
+
+        //static void TestStats()
+        //{
+        //    var q = from stats in GetStats()
+        //            where stat.Date >= lastRefresh
+        //            orderby stat.Date
+        //            select stats;
+
+        //    foreach (var stats in q)
+        //    {
+        //        // Affichage de la stat
+        //    }
+
+        //    lblLastUpdate.Text = String.Format("{0} : {1} nouvelles statistiques", DateTime.Now, q.Count());
+        //    lastRefresh = DateTime.Now;
+
+        //}
+
+        /// <summary>
+        /// Simulation de l'opérateur Where
+        /// </summary>
+        static IEnumerable<Person> SimulWhere()
+        {
+            foreach (var p in GetPersons())
+            {
+                if (p.IsFamily)
+                    yield return p;
+            }
+        }
+
+        /// <summary>
+        /// Simulation de l'opérateur OrderBy
+        /// </summary>
+        static IEnumerable<Person> SimulOrderBy()
+        {
+            List<Person> result = new List<Person>();
+            result.AddRange(SimulWhere());
+            result.Sort((x, y) => String.Compare(x.Name, y.Name));
+            foreach (var p in result)
+                yield return p;
+        }
+
+        /// <summary>
+        /// Simulation LINQ
+        /// </summary>
+        static void TestSimulLinq()
+        {
+            var query = SimulOrderBy();
+
+            foreach (var p in query)
+                Console.WriteLine(p.Name);
+
+            foreach (var p in query.Take(2))
+                Console.WriteLine(p.Name);
+        }
+
+        #endregion
+
         static void WaitAndPress()
         {
             Console.WriteLine("Appuyer sur une touche pour continuer...");
@@ -418,7 +538,7 @@ namespace Enumerables
             WaitAndPress();
             #endregion
 
-            #region Test énumérateurs complexes et méthode yield
+            #region Exemples énumérateurs complexes et méthode yield
             Console.WriteLine("* Enumérateur de fichier V1 (approche basique)");
             TestFilesV1();
             Console.WriteLine();
@@ -445,6 +565,22 @@ namespace Enumerables
             WaitAndPress();
             #endregion
 
+            #region Exemple LINQ
+            Console.WriteLine("* Requête LINQ");
+            TestLinqRequest();
+            Console.WriteLine();
+            WaitAndPress();
+
+            Console.WriteLine("* Requête LINQ fluent");
+            TestLinqRequestAsFluent();
+            Console.WriteLine();
+            WaitAndPress();
+
+            Console.WriteLine("* Simulation de LINQ avec des méthodes");
+            TestSimulLinq();
+            Console.WriteLine();
+            WaitAndPress();
+            #endregion
         }
     }
 }

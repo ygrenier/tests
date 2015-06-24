@@ -49,6 +49,7 @@
     <Compile Include="EnumFilesV1.cs" />
     <Compile Include="FakeEnumerable.cs" />
     <Compile Include="FakeEnumerator.cs" />
+    <Compile Include="Person.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReverseEnumerable.cs" />

@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrgPart3", "PrgPart3\PrgPart3.csproj", "{41349392-BB15-4575-9B6D-D3B734096B90}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enumerables-fr", "Enumerables-fr\Enumerables-fr.csproj", "{BD6CD85F-9196-4DFB-BEDC-560004EB982A}"
 EndProject
 Global
@@ -13,10 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{41349392-BB15-4575-9B6D-D3B734096B90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{41349392-BB15-4575-9B6D-D3B734096B90}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{41349392-BB15-4575-9B6D-D3B734096B90}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{41349392-BB15-4575-9B6D-D3B734096B90}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BD6CD85F-9196-4DFB-BEDC-560004EB982A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BD6CD85F-9196-4DFB-BEDC-560004EB982A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD6CD85F-9196-4DFB-BEDC-560004EB982A}.Release|Any CPU.ActiveCfg = Release|Any CPU
