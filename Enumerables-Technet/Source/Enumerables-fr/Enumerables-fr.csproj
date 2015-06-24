@@ -42,8 +42,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnumerableWithEnumeratorDisposable.cs" />
+    <Compile Include="EnumeratorDisposable.cs" />
+    <Compile Include="FakeEnumerable.cs" />
+    <Compile Include="FakeEnumerator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReverseEnumerable.cs" />
+    <Compile Include="ReverseEnumerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
