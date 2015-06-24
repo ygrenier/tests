@@ -44,6 +44,9 @@
   <ItemGroup>
     <Compile Include="EnumerableWithEnumeratorDisposable.cs" />
     <Compile Include="EnumeratorDisposable.cs" />
+    <Compile Include="EnumFilesV3.cs" />
+    <Compile Include="EnumFilesV2.cs" />
+    <Compile Include="EnumFilesV1.cs" />
     <Compile Include="FakeEnumerable.cs" />
     <Compile Include="FakeEnumerator.cs" />
     <Compile Include="Program.cs" />
@@ -53,6 +56,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Files\Fichier1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\Fichier2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\Fichier3.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
