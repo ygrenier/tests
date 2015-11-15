@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enumerables-fr", "Enumerables-fr\Enumerables-fr.csproj", "{BD6CD85F-9196-4DFB-BEDC-560004EB982A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Enumerables-en", "Enumerables-en\Enumerables-en.csproj", "{6373827A-FF33-4A4F-A7F7-934903CD17EA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Articles", "Articles", "{83ADC8F3-65D4-4FF8-8B52-9614700F9E86}"
+	ProjectSection(SolutionItems) = preProject
+		..\Article\article-fr.md = ..\Article\article-fr.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
