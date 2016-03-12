@@ -10,6 +10,15 @@ namespace PInvokeMultiPlatform
     {
         static void Main(string[] args)
         {
+            try
+            {
+                Console.WriteLine("Version {0}", Lua.lua_version(IntPtr.Zero));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Err ({0}): {1}", ex.GetType().Name, ex.GetBaseException().Message);
+            }
+            Console.Read();
         }
     }
 }
