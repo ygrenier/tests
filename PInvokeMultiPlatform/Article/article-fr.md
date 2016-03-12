@@ -11,10 +11,14 @@ Les binaires de la DLL Lua pour Windows se trouvent sur SourceForge : http://lua
 
 ### Création du projet
 
+Nous allons créer une application Console.
+
 ![Création du projet](create-project.png)
 
 Si vous créez un projet .Net 4.5 il faut désactiver l'option "Préférer 32 bits" pour que notre
 exemple fonctionne correctement.
+
+![Désactivation du mode 32 bits](disable-32bits.png)
 
 ### Intégration de la DLL
 
@@ -104,7 +108,7 @@ Ouvrir le gestionnaire de configuration :
 
 ![Gestionnaire de configuration](configuration-manager.png)
 
-Pour créer une nouvelle plateforme cliquer sur le sélecteur "Plateforme de la solution active" et sélectionner "&lt;Nouveau...&gt;":
+Pour créer une nouvelle plateforme,  cliquer sur le sélecteur "Plateforme de la solution active" et sélectionner "&lt;Nouveau...&gt;":
 
 ![Créer une configuration](create-configuration.png)
  
@@ -174,7 +178,7 @@ static Lua()
 }
 ```
 
-Pour détermine la plateforme il existe plusieurs méthodes. Dans notre cas j'utilise la technique de la taille du pointeur: sur une plateforme 32 bits un pointeur fait 4 octets (4 * 8 = 32 bits), alors que sur une plateforme 64 bits un pointeur fait 8 octets (8 * 8 = 64 bits).
+Pour déterminer la plateforme il existe plusieurs méthodes. Dans notre cas j'utilise la technique de la taille du pointeur: sur une plateforme 32 bits un pointeur fait 4 octets (4 * 8 = 32 bits), alors que sur une plateforme 64 bits un pointeur fait 8 octets (8 * 8 = 64 bits).
 
 En fonction de cette taille on détermine le dossier dans lequel on va trouver la DLL, et on la charge en mémoire avec l'API "LoadLibrary".
 
