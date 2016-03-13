@@ -8,28 +8,23 @@ All code samples are in the project "Enumerable-en" in the solution.
 
 # The enumerables
 
+The purpose of the enumerables is to browse through a list of elements by retreiving element by element like a stream (named as iteration or enumeration). The most common usage of this principle is done with the `foreach` keyword.
 
-~~~ TO TRANSLATE
+In .Net the enumerables are based on the interfaces `System.Collections.IEnumerable` and `System.Collections.IEnumerator`. The generic version of these interfaces exist as `System.Collections.Generic.IEnumerable<>` and  `System.Collections.Generic.IEnumerator<>`.
 
+When a class implements the interface `IEnumerable` then it becomes enumerable.
 
+`IEnumerable` indicates than we can enumerate an objet that is responsible to provide an  `IEnumerator` each time we want to browse its elements.
 
-Le principe des énumérables est de permettre de parcourir une liste d'éléments en récupérant élément par élément, a la manière d'un flux (on parle d'itération ou d'énumération). L'utilisation la plus courante de ce principe se fait avec le mot clé `foreach`.
+`IEnumerator` is the "enumerator", that is the object that will be in charge of "Browsing" the elements to enumerate.
 
-Dans .Net les énumérables fonctionnent via les interfaces `System.Collections.IEnumerable` et `System.Collections.IEnumerator`. Ces interfaces existent en version générique  `System.Collections.Generic.IEnumerable<>` et  `System.Collections.Generic.IEnumerator<>`.
+So to make a class as enumerable, we implements `IEnumerable` which will create an `IEnumerator` which will be responsible of the iteration of the elements.
 
-A partir du moment où une classe implémente l'interface `IEnumerable` alors elle devient énumérable.
+Notice: all lists, collections, dictionnaries, and arrays in .Net, implement `IEnumerable`.
 
-`IEnumerable` indique que l'on peut énumérer un objet et il a la charge de fournir un \ `IEnumerator` à chaque fois que l'on veut parcourir ses éléments.
+## IEnumerable/IEnumerable&lt;T&gt; interface
 
-`IEnumerator` est "l'énumérateur", c'est à dire l'objet qui va se charger de "parcourir" les éléments à énumérer.
-
-Donc pour rendre une classe énumérable, on implémente `IEnumerable` qui va créer un `IEnumerator` qui aura la charge de l'itération des éléments.
-
-A savoir: toutes les listes, collections, dictionnaires, ainsi que les tableaux du .Net, implémentent `IEnumerable`.
-
-## Interface IEnumerable/IEnumerable&lt;T&gt;
-
-Cette interface indique qu'on peut énumérer l'objet de la classe qui l'implémente. Elle ne possède qu'une méthode `GetEnumerator()` retournant un `IEnumerator`.
+This interface indicates we can enumerate the object of the class that implements it. It provides only one method `GetEnumerator()` returning an `IEnumerator`.
 
 ```csharp
 public interface IEnumerable
@@ -42,11 +37,13 @@ public interface IEnumerable<out T> : IEnumerable
 }
 ```
 
-Le principe de cette interface et de fournir un nouvel objet énumérateur à chaque appel permettant ainsi de démarrer une nouvelle itération, et permettre également d'avoir plusieurs itérations en parallèle sur la même source (si la logique de l'objet sous-jacent le permet).
+The purpose of the class is to provide a new enumerator object each time we need to start a new iteration, and permits to have several iterations in parallel on the same source (if the object logic permits it).
 
-## Interface IEnumerator/IEnumerator&lt;T&gt;
 
-Cette interface représente la logique d'itération (objet énumérateur). C'est elle qui indique l'élément en cours et qui permet de se "déplacer" dans l'énumération.
+## IEnumerator/IEnumerator&lt;T&gt; interface 
+
+This interface represents the iteration logic (enumerator object). This it wich indicates the current element and permits to "move" in the enumeration.
+
 
 ```csharp
 public interface IEnumerator
@@ -61,38 +58,38 @@ public interface IEnumerator<out T> : IDisposable, IEnumerator
 }
 ```
 
-Le fonctionnement de l'énumérateur est assez simple : il indique l'élément en cours d'énumération (propriété `Current`), et se déplace vers le prochain élément avec la méthode `MoveNext()`.
+The operation of the enumerator is simple: it indicates the current element of the enumeration (`Current` property), and moves to the next element with the `MoveNext()` method.
 
-## Principe de l'itération
+## Iteration basics
 
-Pour parcourir un énumérable on utilise toujours le même principe :
+To navigate through an enumerable we use always the same principle:
 
-- On demande à `IEnumerable` un nouvel énumérateur
-- Tant que `IEnumerator.MoveNext()` retourne `true`
-	- On traite `IEnumerator.Current`
+- Get a new enumerator from `IEnumerable`
+- While `IEnumerator.MoveNext()` returns `true`
+	- Process `IEnumerator.Current`
 
-C'est ce que fait l'instruction `foreach` pour nous.
+This is what the statement `foreach` do for us.
 
-Ainsi la boucle suivante (méthode `ForEach()` dans le programme d'exemple) :
+So the next loop (`ForEach()` method in the sample program):
 
 ```csharp
-// Récupération de l'énumérable
+// Get the enumerable
 IEnumerable<Int32> enumerable = GetItems();
-// Parcours chaque élément dans 'enumerable'
+// Iterates each element in 'enumerable'
 foreach (int elm in enumerable)
 {
     // ..
 }
 ```
 
-est approximativement compilée comme ceci (méthode `IterationBase()` dans le programme d'exemple) :
+is approximately compiled like this (`IterationBase()` method in the sample program):
 
 ```csharp
-// Récupération de l'énumérable
+// Get the enumerable
 IEnumerable<Int32> enumerable = GetItems();
-// Récupère un nouvel énumérateur
+// Get a new enumerator
 IEnumerator<Int32> enumerator = enumerable.GetEnumerator();
-// Tant que l'énumérateur se déplace
+// While the enumerator move
 while (enumerator.MoveNext())
 {
     Int32 elm = enumerator.Current;
@@ -100,16 +97,16 @@ while (enumerator.MoveNext())
 }
 ```
 
-Toutefois ce n'est pas tout à fait exact, car la boucle `foreach` gère également la possibilité qu'un énumérateur soit disposable (implémentant `IDisposable`) (la méthode `ForEachDisposable()` le montre), donc la boucle équivalente est en réalité plus comme ceci (méthode `IterationBaseWithDispose()` dans le programme d'exemple) :
+However this is not entirely exact, because the `foreach` loop handles the possibility than an enumerator be disposable (that implements `IDisposable`) (`ForEachDisposable()` method in the sample program show it), so in fact the the equivalent loop is more like this (`IterationBaseWithDispose()` method in the sample program) :
 
 ```csharp
-// Récupération de l'énumérable
+// Get the enumerable
 IEnumerable<Int32> enumerable = GetItems(true);
-// Récupère un nouvel énumérateur
+// Get a new enumerator
 IEnumerator<Int32> enumerator = enumerable.GetEnumerator();
 try
 {
-    // Tant que l'énumérateur se déplace
+    // While the enumerator move
     while (enumerator.MoveNext())
     {
         Int32 elm = enumerator.Current;
@@ -119,9 +116,9 @@ try
 }
 finally
 {
-    // On détermine si l'énumérateur est disposable
+    // Check if the enumerator is disposable
     IDisposable disp = enumerator as IDisposable;
-    // Si c'est le cas on dispose l'énumérateur
+    // If true the we dispose it
     if (disp != null)
     {
         disp.Dispose();
@@ -129,17 +126,23 @@ finally
 }
 ```
 
-De cette manière que la boucle s'arrête normalement, ou prématurément via un `break`, ou à cause d'une exception, notre énumérateur sera disposé.
+In this way that the loop terminates normally, or prematurely by a `break` statement, or by an exception, our enumerator will be disposed.
 
-Il faut comprendre qu'implémenter `IDisposable` sur notre énumérateur est le seul moyen que nous avons pour déterminer qu'une itération est terminée, surtout si on a pas parcouru l'ensemble des éléments.
+It must be understood that implement 'IDisposable' on our enumerator is the only way we have to determine that an iteration is finished, especially if it has not browsed all the elements.
 
-Petit aparté : en réalité `foreach` ne prend pas en charge que des `IEnumerable`. Ce qui importe pour le compilateur lors d'un `foreach` c'est que la source à énumérer possède une méthode `GetEnumerator()` publique qui retourne un type qui possède une méthode `MoveNext()` retournant un booléen, et une propriété `Current`. Dans le programme d'exemple vous trouverez la méthode `ForEachWithoutIEnumerable()` utilisant les objets `FakeEnumerable` et `FakeEnumerator` n'implémentant pas les interfaces.
+Small aside: in fact `foreach` do not supports only the `IEnumerable`. What the compiler needs the `foreach` statement, is that the source to enumerate provides a `GetEnumerator()` public method that returns a type that provides a `MoveNext()` public method returning a boolean, and a `Current` property. In the sample program you can find the `ForEachWithoutIEnumerable()` method using the `FakeEnumerable` and `FakeEnumerator` objects that does not implement the interfaces.
 
 ## Les énumérateurs
 
-Pour faire un énumérateur il faut donc implémenter `IEnumerator`. Toutefois avant d'en implémenter un, si vous voulez énumérer un tableau privé (ou tout autre IEnumerable) par exemple, il vous suffit de renvoyer le `GetNumerator()` du tableau.
+To make an enumerator we need to implements `IEnumerator`. However before you implement one, if you need iterate a private array (or another IEnumerable) for example, just return the array  `GetNumerator()` method result.
+
 
 L'implémentation est assez simple au final, ce qui importe c'est qu'à sa création l'énumérateur est dans un état "indéfini", c'est à dire qu'on ne s'est pas encore déplacé, donc `Current` doit se trouver avec une valeur par défaut, et on doit attendre le premier `MoveNext()` pour commencer vraiment notre itération. Ce qui implique que si vous avez des initialisations à faire (se connecter à une base de données par exemple) vous devez le faire lors du premier `MoveNext()` pour des raisons d'optimisation; on peut avoir besoin d'instancier un énumérateur sans pour autant le parcourir, ce qui peut être le cas quand on enchaîne plusieurs énumérables comme LINQ (cf prochaine partie de cet article).
+
+
+~~~ TO TRANSLATE
+
+
 
 Imaginons que nous voulons créer un énumérateur qui parcours une liste à l'envers. La méthode `TestReverse()` du programme d'exemple montre l'utilisation de notre classe énumérateur.
 
