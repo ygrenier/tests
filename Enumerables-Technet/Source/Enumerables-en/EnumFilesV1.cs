@@ -16,7 +16,7 @@ namespace Enumerables
         private List<String> _Lines;
 
         /// <summary>
-        /// Create a new enumerabl
+        /// Create a new enumerable
         /// </summary>
         public EnumFilesV1(IEnumerable<String> files)
         {
@@ -57,7 +57,7 @@ namespace Enumerables
         }
 
         /// <summary>
-        /// Returns the lines enumertor
+        /// Returns the lines enumerator
         /// </summary>
         public IEnumerator<string> GetEnumerator()
         {

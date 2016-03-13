@@ -194,7 +194,7 @@ namespace Enumerables
         }
 
         /// <summary>
-        /// List odf the files
+        /// List of the files
         /// </summary>
         public String[] Files { get; private set; }
 

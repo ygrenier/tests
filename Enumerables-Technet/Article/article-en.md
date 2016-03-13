@@ -132,23 +132,17 @@ It must be understood that implement 'IDisposable' on our enumerator is the only
 
 Small aside: in fact `foreach` do not supports only the `IEnumerable`. What the compiler needs the `foreach` statement, is that the source to enumerate provides a `GetEnumerator()` public method that returns a type that provides a `MoveNext()` public method returning a boolean, and a `Current` property. In the sample program you can find the `ForEachWithoutIEnumerable()` method using the `FakeEnumerable` and `FakeEnumerator` objects that does not implement the interfaces.
 
-## Les énumérateurs
+## The enumerators
 
 To make an enumerator we need to implements `IEnumerator`. However before you implement one, if you need iterate a private array (or another IEnumerable) for example, just return the array  `GetNumerator()` method result.
 
+The implementation is simple, but when the enumerator is created, it is in en "undefined" state, it means that it is not yet moved, therefore `Current` must returns a default value, and we need wait the first `MoveNext()` to start the iteration. Which means that if you have some initializations to do (like connect to a daatabase for example) you do it when the first `MoveNext()` optimisation reasons; we may need to instanciate an enumerator without enumerate it, which it may be the case when you link several LINQ queries (see next part of the article).
 
-L'implémentation est assez simple au final, ce qui importe c'est qu'à sa création l'énumérateur est dans un état "indéfini", c'est à dire qu'on ne s'est pas encore déplacé, donc `Current` doit se trouver avec une valeur par défaut, et on doit attendre le premier `MoveNext()` pour commencer vraiment notre itération. Ce qui implique que si vous avez des initialisations à faire (se connecter à une base de données par exemple) vous devez le faire lors du premier `MoveNext()` pour des raisons d'optimisation; on peut avoir besoin d'instancier un énumérateur sans pour autant le parcourir, ce qui peut être le cas quand on enchaîne plusieurs énumérables comme LINQ (cf prochaine partie de cet article).
-
-
-~~~ TO TRANSLATE
-
-
-
-Imaginons que nous voulons créer un énumérateur qui parcours une liste à l'envers. La méthode `TestReverse()` du programme d'exemple montre l'utilisation de notre classe énumérateur.
+Suppose you want to create an enumerator to iterate a list in the reverse order. The `TestReverse()`method in the sample program show the use of our enumerator class.
 
 ```csharp
 /// <summary>
-/// Enumérateur parcourant une liste dans le sens inverse
+/// Enumerator iterates the list in the reverse way
 /// </summary>
 public class ReverseEnumerator<T> : IEnumerator<T>
 {
@@ -157,82 +151,82 @@ public class ReverseEnumerator<T> : IEnumerator<T>
     bool _Completed;
  
     /// <summary>
-    /// Création d'un nouvel énumérateur
+    /// Create a new enumerator
     /// </summary>
     public ReverseEnumerator(IList<T> source)
     {
         this._Source = source;
-        // On met -1 pour indiquer qu'on a pas commencé l'itération
+        // Set -1 to indicates the iteration is not started
         this._Position = -1;
-        // L'itération n'est pas terminée
+        // The iteration is not finished
         this._Completed = false;
-        // On défini Current avec la valeur par défaut
+        // Set the Current value by default
         this.Current = default(T);
     }
  
     /// <summary>
-    /// Libération des ressources
+    /// Release the resources
     /// </summary>
     public void Dispose()
     {
-        // On a rien à libérer , mais on marque notre itérateur comme terminé
+        // Nothing to dispose, but mark the iterator as finished
         this._Completed = true;
     }
  
     /// <summary>
-    /// Cette méthode est appelée lorsque l'on veut réinitialiser l'énumérateur
+    /// This method is called when we want to reset the enumerator
     /// </summary>
     public void Reset()
     {
-        // On met -1 pour indiquer qu'on a pas commencer l'itération
+        // Set -1 to indicates the iteration is not started
         this._Position = -1;
-        // L'itération n'est pas terminée
+        // The iteration is not finished
         this._Completed = false;
-        // On défini Current avec la valeur par défaut
+        // Set the Current value by default
         this.Current = default(T);
     }
  
     /// <summary>
-    /// On se déplace vers le prochain élément
+    /// We go to the next element
     /// </summary>
-    /// <returns>False lorsque l'itération est terminée</returns>
+    /// <returns>False when the iteration is finished</returns>
     public bool MoveNext()
     {
-        // Si la source est Null alors on a rien à parcourir, donc l'itération s'arrête
+        // If the source is null then we have nothing to browse, the iteration is finished
         if (this._Source == null) return false;
  
-        // Si l'itération est terminée alors on ne va pas plus loin
+        // If the iteration is finished, we stop here
         if (this._Completed) return false;
  
-        // Si la position est à -1 on récupère le nombre d'éléments à parcourir pour démarrer l'itération
+        // If the is -1 we get the count of the elements to iterates for starting the iteration
         if (this._Position == -1)
         {
             this._Position = _Source.Count;
         }
  
-        // On se déplace dans la liste
+        // We move on the list
         this._Position--;
  
-        // Si on a atteind -1 alors on a terminé l'itération
+        // If we reach the -1 position the iteration is finished
         if (this._Position < 0)
         {
             this._Completed = true;
             return false;
         }
  
-        // On défini Current et on continue
+        // We set Current and continue
         Current = this._Source[this._Position];
  
         return true;
     }
  
     /// <summary>
-    /// Elément en cours de l'itération
+    /// Current element
     /// </summary>
     public T Current { get; private set; }
  
     /// <summary>
-    /// Elément en cours pour la version non générique
+    /// Current element for the non generic version
     /// </summary>
     object System.Collections.IEnumerator.Current
     {
@@ -242,219 +236,216 @@ public class ReverseEnumerator<T> : IEnumerator<T>
 }
 ```
 
-Comme on peut le voir le principe de l'implémentation est assez simple.
+As we can see, implement enumerator is simple.
 
-Toutefois ça peut vite se compliquer quand nous avons des énumérateurs complexes (parcours d'un arbre syntaxique par exemple). Nous verrons au chapitre suivant comment on peut se simplifier la vie.
+However it can quickly become complicated when we have complex enumerators (browse a syntaxic tree for example). We will see in next section how to simplify our code.
 
-Dernier point pour cette partie : `IEnumerator` demande l'implémentation de `Reset()`. Il faut savoir que cette méthode n'est pas vraiment utilisée, la plupart du temps elle lève une exception `NotImplementedException`. Donc si son implémentation est trop complexe, n'ayez pas peur de faire de même. En fait on part du principe que si on veut redémarrer une itération on fait à nouveau appel à `IEnumerable.GetEnumerator()` qui va nous instancier un nouvel énumérateur, donc le reset n'a plus lieu d'être.
+Last words for this part: `IEnumerator` require to implements the `Reset()` method. You need to this method is not really used, most of the time it throws a `NotImplementedException`. So if your implementation is too complex, you can throw this exception too instead of. In fact, now we consider that if we need to restart an iteration, we call again `IEnumerable.GetEnumerator()` to create a new enumerator, so the `Reset()`is not more useful.
 
-# Les méthodes Yield
 
-Précédemment, certains d'entre vous ont dû se dire qu'à chaque fois que l'on veut mettre en place un énumérateur un peu particulier, il y a beaucoup de code à mettre place.
+# The Yield methods
 
-Effectivement on peut vite se retrouver avec des énumérateurs complexes, avec interception d'erreurs, libération de ressources multiples, etc., ce qui peut rapidement compliquer les choses.
+Previously, we see how to implement an enumerator, but probably you think it could be complicated to create a class each time we need a special enumerator. Actually it can quickly end up with complex enumerators, with catching errors, release of multiple resources, etc., which can quickly complicate matters.
 
-C'est là que le compilateur C# va venir à notre rescousse via le mot clé <code>yield</code> (VB.NET supporte également une instruction `Yield`).
+It is there the C# compiler come to our rescue with the `yield` keyword (VB.NET also supports a `Yield` statement).
 
-Bien imaginons par exemple que nous voulons un énumérable auquel nous transmettons une liste de fichiers, et cet énumérable va parcourir chaque fichier et énumérer chaque ligne de texte du fichier.
+For example we want an enumerable whereby we pass a list of files, and this enumerable iterate each file and read all the text lines of the file.
 
-Cet exemple est intéressant car il inclus un gestion des erreurs (un fichier peut ne pas exister, ou être verrouillé, etc.) et une gestion des ressources multiples (chaque fichier doit être disposé).
+This example is interesting because it included an error handling (a file may not exists, or be locked, etc.) and a multiple resources management (each file must be disposed).
 
-## Version brut de code
+## Classic code version
 
-Commençons par une version ressemblant typiquement à la solution que va prendre quelqu'un qui ne comprends pas les principes des énumérables ou tout simplement qui cherche à éviter la difficulté de faire un énumérateur correct.
+Let's start by a typically version code, like someone don't know the enumerable principle, or don't want to create an enumerator.
 
-Cette solution se contente de lire tous les fichiers dans une liste, et lorsqu'on à besoin d'un énumérateur on retourne celui de la liste. (La méthode `TestFilesV1()` dans le programme exemple montre son utilisation).
+This solution read all the files in a list, and when we want to enumerate them, we return the enumerator of the list (look the `TestFilesV1()` method in the sample program).
 
 ```csharp
 /// <summary>
-/// Enumérable parcourant les lignes texte d'un ensemble de fichier
+/// Enumerable enumerates the text lines of a set of files
 /// </summary>
 public class EnumFilesV1 : IEnumerable<String>
 {
     private List<String> _Lines;
     /// <summary>
-    /// Création d'un nouvel énumérable
+    /// Create a new enumerable
     /// </summary>
     public EnumFilesV1(IEnumerable<String> files)
     {
-        // Initialisation des fichiers
+        // Init the files
         this.Files = files.ToArray();
-        // On marque la liste des lignes à charger en la mettant à null
+        // Mark the lines list as 'to load' by setting it to null
         _Lines = null;
     }
     void LoadFiles()
     {
-        // Création de la liste des lignes
+        // Create the lines list
         _Lines = new List<string>();
         if (this.Files != null)
         {
-            // Pour chaque fichier
+            // For each file
             foreach (var file in Files)
             {
                 try
                 {
-                    // Ouverture d'un lecteur de fichier texte
+                    // Open a file text reader
                     using (var reader = new StreamReader(file))
                     {
-                        // Lecture de chaque ligne du fichier
+                        // Read each line of the file
                         String line;
                         while ((line = reader.ReadLine()) != null)
                         {
-                            // On ajoute la ligne dans la liste
+                            // Add the line to the list
                             _Lines.Add(line);
                         }
                     }
                 }
-                catch { }   // Si une erreur à la lecture du fichier on passe au prochain fichier
+                catch { }   // When an error raised while reading the file, go to the next
             }
         }
     }
     /// <summary>
-    /// Retourne l'énumérateur des lignes
+    /// Returns the lines enumerator
     /// </summary>
     public IEnumerator<string> GetEnumerator()
     {
-        // Si la liste des lignes est null alors il faut lire les fichiers
+        // If the lines list is null then read the files
         if (_Lines == null)
         {
-            // Chargement des fichiers
+            // Load the files
             LoadFiles();
         }
-        // Retourne l'énumérateur de la liste
+        // Returns the list enumerator
         return _Lines.GetEnumerator();
     }
     /// <summary>
-    /// Implémentation de IEnumerator.GetEnumerator() (version non générique)
+    /// Implements IEnumerator.GetEnumerator() (non generic version)
     /// </summary>
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
     }
     /// <summary>
-    /// Liste des fichiers
+    /// List of the files
     /// </summary>
     public String[] Files { get; private set; }
 }
 ```
 
-Alors qu'est-ce qui ne va pas avec ce code ?
+So what is wrong with this code ?
 
-La première chose c'est que si les fichiers venaient à changer de contenu entre deux appels de `GetEnumerator()` nous retournerons à chaque fois le contenu de la lecture initiale. On peut résoudre ce problème simplement en modifiant légèrement notre code pour reconstruire la liste des lignes à chaque appel.
+First, if some files have content changing between to calls of `GetEnumerator()` we return only the initial read. We can resolve this by changing our code by rebuild the text lines list on each call.
 
 ```csharp
 /// <summary>
-/// Enumérable parcourant les lignes texte d'un ensemble de fichier reconstruisant une liste à chaque appel
+/// Enumerable enumerates the text lines of a set of files, rebuilding the list on each call
 /// </summary>
 public class EnumFilesV2 : IEnumerable<String>
 {
     /// <summary>
-    /// Création d'un nouvel énumérable
+    /// Create a new enumerable
     /// </summary>
     public EnumFilesV2(IEnumerable<String> files)
     {
-        // Initialisation des fichiers
+        // Init the files
         this.Files = files.ToArray();
     }
     IList<String> LoadFiles()
     {
-        // Création de la liste des lignes
+        // Create the lines list
         var result = new List<string>();
         if (this.Files != null)
         {
-            // Pour chaque fichier
+            // For each file
             foreach (var file in Files)
             {
                 try
                 {
-                    // Ouverture d'un lecteur de fichier texte
+                    // Open a file text reader
                     using (var reader = new StreamReader(file))
                     {
-                        // Lecture de chaque ligne du fichier
+                        // Read each line of the file
                         String line;
                         while ((line = reader.ReadLine()) != null)
                         {
-                            // On ajoute la ligne dans la liste
+                            // Add the line of the list
                             result.Add(line);
                         }
                     }
                 }
-                catch { }   // Si une erreur à la lecture du fichier on passe au prochain fichier
+                catch { }   // When an error raised while reading the file, go to the next fichier
             }
         }
-        // On retourne la liste
+        // Returns the list
         return result;
     }
     /// <summary>
-    /// Retourne l'énumérateur des lignes
+    /// Returns the enumerator of the lines
     /// </summary>
     public IEnumerator<string> GetEnumerator()
     {
-        // On construit la liste
+        // Build the list
         var list = LoadFiles();
-        // Retourne l'énumérateur de la liste
+        // Return the list enumerator
         return list.GetEnumerator();
     }
     /// <summary>
-    /// Implémentation de IEnumerator.GetEnumerator() (version non générique)
+    /// Implements IEnumerator.GetEnumerator() (non generic version)
     /// </summary>
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
     }
     /// <summary>
-    /// Liste des fichiers
+    /// List of the files
     /// </summary>
     public String[] Files { get; private set; }
 }
 ```
 
-On supprime la liste des lignes de l'énumérable et on construit une nouvelle liste à chaque appel de `GetEnumerator()` et on retourne l'énumerateur de cette nouvelle liste. (La méthode <code>TestFilesV2()</code> dans le programme exemple montre son utilisation).
+We remove the list of text lines from the enumerable, and we build a new list on each call of `GetEnumerator()` and we return the enumerator of this new list (the `TestFilesV2()` method in the sample program shows the usage).
 
-Cette fois nous respectons un peu mieux les principes des énumérables toutefois ce n'est toujours pas satisfaisant d'un point de vue des performances. En effet s'il s'avère que les fichiers sont volumineux, nous chargeons tout dans une liste en mémoire. Imaginons que nous nous servons de cet énumérable pour filtrer quelques lignes sur un million, nous pouvons engorger notre mémoire inutilement. Pire si on extrait que les milles premières lignes, nous aurons chargé 999000 lignes de trop :(
+Now we are in best respect of the enumerable principles, however is still not satisfy from a point of view performances. If we have some large files, we loading all lines in memory. If we have one million of lines and need to extract only the first thousand, we have loaded 999000 lines in memory for nothing :(
 
-## Version plus subtile
+## More optimized version
 
-L'idéal serait de ne lire une ligne de texte que quand on en a besoin. Bref en gros lors du `IEnumerator.MoveNext()`.
-
-Nous allons donc faire preuve de subtilité et gérer la lecture en flux.
+The best solution would be to read a text line only when it's needed. So each time we wall  `IEnumerator.MoveNext()`. We will read as streaming.
 
 ```csharp
 /// <summary>
-/// Enumérable parcourant les lignes texte d'un ensemble de fichier via un énumérateur
+/// Enumerable enumerates the text lines of a set of files via an enumerator
 /// </summary>
 public class EnumFilesV3 : IEnumerable<String>
 {
     /// <summary>
-    /// Création d'un nouvel énumérable
+    /// Create a new enumerable
     /// </summary>
     public EnumFilesV3(IEnumerable<String> files)
     {
-        // Initialisation des fichiers
+        // Init the files
         this.Files = files.ToArray();
     }
     /// <summary>
-    /// Retourne l'énumérateur des lignes
+    /// Returns the lines enumerator
     /// </summary>
     public IEnumerator<string> GetEnumerator()
     {
-        // Retourne un nouvel énumérateur
+        // Returns a new enumerator 
         return new FileEnumerator(Files);
     }
     /// <summary>
-    /// Implémentation de IEnumerator.GetEnumerator() (version non générique)
+    /// Implements IEnumerator.GetEnumerator() (non generic version)
     /// </summary>
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
     }
     /// <summary>
-    /// Liste des fichiers
+    /// List of the files
     /// </summary>
     public String[] Files { get; private set; }
 }
 /// <summary>
-/// Enumérateur de fichier
+/// File enumerator
 /// </summary>
 class FileEnumerator : IEnumerator<String>
 {
@@ -463,36 +454,36 @@ class FileEnumerator : IEnumerator<String>
     String _CurrentFileName;
     TextReader _CurrentFile;
     /// <summary>
-    /// Création d'un nouvel énumérateur
+    /// Create a new enumerator
     /// </summary>
     public FileEnumerator(String[] files)
     {
-        // Initialisation des fichiers
+        // Init the files
         this.Files = files;
-        // Initialisation de l'énumérateur
+        // Init the enumerator
         Current = null;
         _CurrentFilePos = 0;
         _CurrentFileName = null;
         _CurrentFile = null;
-        // L'état de l'énumérateur est à l'ouverture du prochain fichier à traiter
+        // The enumerator state is to open the next file to read
         _CurrentState = OpenNextFileState;
     }
     /// <summary>
-    /// Libération des ressources éventuelles
+    /// Dispose some resources
     /// </summary>
     public void Dispose()
     {
-        // Si on a un fichier encore d'ouvert on libère la mémoire
+        // If we have a file opened we close it
         if (_CurrentFile != null)
         {
             _CurrentFile.Dispose();
             _CurrentFile = null;
         }
-        // On défini l'état 'Completed'
+        // Set the state to 'Completed'
         _CurrentState = CompletedState;
     }
     /// <summary>
-    /// Essayes d'ouvrir le prochain fichier de la liste
+    /// Try to open the next file in the list
     /// </summary>
     bool GetNextFile()
     {
@@ -507,120 +498,118 @@ class FileEnumerator : IEnumerator<String>
             }
             catch { }
         }
-        // Si on a un fichier d'ouvert
+        // If we have a file opened
         if (file != null)
         {
             _CurrentFileName = filename;
             _CurrentFile = file;
             return true;
         }
-        // Sinon on a rien trouvé
+        // Else we don't found
         return false;
     }
     /// <summary>
-    /// Ouverture du prochain fichier
+    /// Open the next file
     /// </summary>
     bool OpenNextFileState()
     {
-        // Si on a pas ou plus de fichier on arrête tout
+        // If we don't have file, we stop all
         if (!GetNextFile())
         {
             Current = null;
-            // On passe à l'état 'Completed'
+            // Go to the state 'Completed'
             _CurrentState = CompletedState;
-            // On termine
+            // We finished
             return false;
         }
-        // On passe à l'état ReadNextLine
+        // Go to the state ReadNextLine
         _CurrentState = ReadNextLineState;
-        // On lit la première ligne
+        // Read the first line
         return _CurrentState();
     }
     /// <summary>
-    /// On est en cours de lecture
+    /// Read line state
     /// </summary>
     bool ReadNextLineState()
     {
         try
         {
-            // On lit la prochaine ligne du fichier
+            // Read the next line in the file
             String line = _CurrentFile.ReadLine();
-            // Si la ligne n'est pas null on la traite
+            // If the line is not null we process it
             if (line != null)
             {
                 Current = line;
                 return true;
             }
-            // La ligne est null alors on a atteint la fin du fichier, on libère sa ressource
+            // The line is null so we reach the end of the file, we release the resource
         }
         catch
         {
-            // Si une erreur survient à la lecture on ferme le fichier en cours pour éviter les boucles infinies
+            // If an error raised while reading we close the current file to avoid infinite loops
         }
-        // Libération des ressources pour passer au fichier suivant
+        // Release resources to go to the next file
         _CurrentFile.Dispose();
         _CurrentFile = null;
         _CurrentFileName = null;
-        // On passe à l'état 'OpenNextFile'
+        // Go to the state 'OpenNextFile'
         _CurrentState = OpenNextFileState;
-        // On traite le prochain état
+        // Process the next state
         return _CurrentState();
     }
     /// <summary>
-    /// L'itération est terminée on retourne toujours false
+    /// The iteration is finished, so we returns always false
     /// </summary>
     bool CompletedState()
     {
         return false;
     }
     /// <summary>
-    /// On ne s'occupe pas de cette méthode
+    /// We don"t used this method
     /// </summary>
     public void Reset()
     {
         throw new NotSupportedException();
     }
     /// <summary>
-    /// On se déplace
+    /// We move to the next line
     /// </summary>
     public bool MoveNext()
     {
-        // Exécution de l'état en cours
+        // Process the next state
         return _CurrentState();
     }
     /// <summary>
-    /// Liste des fichiers
+    /// List of the files
     /// </summary>
     public String[] Files { get; private set; }
     /// <summary>
-    /// Valeur en cours
+    /// Current value
     /// </summary>
     public string Current { get; private set; }
     object System.Collections.IEnumerator.Current { get { return Current; } }
 }
 ```
 
-Donc cette fois la partie lecture est défini dans un énumérateur. Il s'agit d'une simple machine à états : 'OpenNextFile', 'ReadNextFile' et 'Completed'.
+Now the reading part is defined in a enumerator. It a simple state machine: 'OpenNextFile', 'ReadNextFile' et 'Completed'.
 
-On constate qu'il faut être vigilant à chaque endroit où une erreur peut survenir, ne pas oublier de libérer les ressources en fonction de différentes situations, etc.
+We can see we need to be vigilant on every location where an error can occur, and don't forget to release the resources according differents situations, etc.
 
-En revanche nous lisons nos fichiers ligne par ligne, par conséquent la charge mémoire est à son minimum. En cas de dispose on libère le fichier ouvert, et on se place sur l'état 'Completed' pour que l'énumérateur ne puisse plus rien faire.
+We read our files text line by text line, so our memory is on a minimal usage. In case of dispose we release the opened file, and we set the state to 'Completed' and the enumerator can't do nothing.
 
-Pour gérer tout ce petit monde on a pas mal de ligne de code.
-
-Et pour tester tout ca (méthode `TestFilesV3()`) on utilise le code suivant :
+We do lot of code for a little work, and for test it, you can look the `TestFilesV3()` method in the sample program: 
 
 ```csharp
 private static void TestFilesV3()
 {
-    // Création de l'énumérable avec les fichiers de tests
+    // Create the enumerable with tests files
     var enumerable = new EnumFilesV3(GetTestFileNames());
-    // On parcours l'énumérable
+    // Iterates the enumerable
     foreach (var line in enumerable)
     {
         Console.WriteLine(line);
     }
-    // On parcours l'énumérable et provoque un arrêt prématuré
+    // Iterates the enumerable and force a break
     int i = 0;
     foreach (var line in enumerable)
     {
@@ -630,23 +619,22 @@ private static void TestFilesV3()
 }
 ```
 
-Qui va parcourir une fois toutes les lignes de tous les fichiers, et une seconde fois mais uniquement les 4 premières lignes de la liste.
+This example read all the lines in a first loop, and in a second loop it read only the first 4 lines.
 
-## 'yield' à notre secours
+## 'yield' in our rescue
 
-Donc nous avons deux situations :
+So we have to situations:
 
-- soit nous faisons un code assez court facilement maintenable, mais qui risque de nous poser des problèmes techniques.
-- soit nous faisons un code plus performant, mais qui est plus complexe, long et difficile à maintenir.
+- either we create a small code, easily maintainable, but with some performances risks.
+- either we create a more efficient code, but wich is more complex, long and sometimes difficult to maintain.
 
- 
-Et si on pouvait concilier les deux ?
+And if we can reconcile the both ? 
 
-Par exemple :
+For example:
 
 ```csharp
 /// <summary>
-/// Ouvre un nouveau fichier ou retourne null si une erreur à lieu
+/// Open a new file or null if an error raised
 /// </summary>
 static StreamReader OpenFile(String file)
 {
@@ -663,20 +651,20 @@ static IEnumerable<String> EnumFilesYield(IEnumerable<String> files)
 {
     if (files != null)
     {
-        // Pour chaque fichier
+        // For each files
         foreach (var file in files)
         {
-            // Ouverture d'un lecteur de fichier texte
+            // Open a file text reader
             using (var reader = OpenFile(file))
             {
-                // reader peut être null si une erreur à eu lieu
+                // reader can be null if an error raised
                 if (reader != null)
                 {
-                    // Lecture de chaque ligne du fichier
+                    // Read each line of the file
                     String line;
                     do
                     {
-                        // Lecture d'une ligne, si une erreur à lieu on arrête la boucle
+                        // Read the line, if an error raised we stop the loop
                         try
                         {
                             line = reader.ReadLine();
@@ -685,10 +673,10 @@ static IEnumerable<String> EnumFilesYield(IEnumerable<String> files)
                         {
                             break;
                         }
-                        // On envoi la ligne d'énumérable
+                        // Returns the line in the 'enumerable'
                         if (line != null)
                             yield return line;
-                    } while (line != null);// Boucle tant qu'on a une ligne
+                    } while (line != null);// Loop while we have a line
                 }
             }
         }
@@ -696,14 +684,14 @@ static IEnumerable<String> EnumFilesYield(IEnumerable<String> files)
 }
 private static void TestFilesYield()
 {
-    // Récupération d'un énumérable avec les fichiers de tests
+    // Get an enumerable with the files test
     var enumerable = EnumFilesYield(GetTestFileNames());
-    // On parcours l'énumérable
+    // Iterates the enumerable
     foreach (var line in enumerable)
     {
         Console.WriteLine(line);
     }
-    // On parcours l'énumérable et provoque un arrêt prématuré
+    // Iterates the enumerable and force a break
     int i = 0;
     foreach (var line in enumerable)
     {
@@ -713,39 +701,43 @@ private static void TestFilesYield()
 }
 ```
 
-`TestFilesYield()` est une méthode qui lance deux boucles d'un énumérable renvoyé par la méthode `EnumFilesYield()`.
+`TestFilesYield()` is a method which run two loops for a enumerable returns par the `EnumFilesYield()` method.
 
-C'est cette dernière qui nous intéresse, alors petite explication de code. On constate que cette méthode retourne un `IEnumerable<String>`, en revanche elle ne renvoie jamais d'énumérable, a la place on a dans la double boucle de lecture de fichier une instruction `yield return line;` ou `line` est une `string`.
+It this last method that interest us, so little explanation of code. This method returns an `IEnumerable<String>`, however it never returns an enumerable, instead of we have in the two loops a statement `yield return line;` where `line` is a `string`.
 
-Le `yield return` dans une méthode indique au compilateur que cette méthode est en fait un énumérateur et que chaque `yield return` renvoi un élément de cet énumérateur. Techniquement le compilateur va transformer cette méthode en un objet `IEnumerator` qui va simuler le code de la méthode.
+The `yield return` in the method indicates to the compiler that method is an enumerator and each `yield return` returns an element of this enumerator. Technically the compiler will transforms this method in a `IEnumerator` object wich simulates the method code.
 
-En plus du `yield return` il existe le `yield break` qui arrête l'énumérateur.
+In addition to the `yield return` there is a `yield break` that stop the enumerator.
 
-Globalement le compilateur est capable de convertir la plupart du code en énumérateur, toutefois on ne peut pas utiliser `yield return` dans un try-catch (mais on le peut dans un try-finally). En revanche un `yield break` peut se trouver dans un try-catch mais pas un try-finally.
+Overall the compiler can convert the most code to an enumerator, however we can't use `yield return` in a try-catch (but it's possible in a try-finally). And a `yield break` can be used in a try-catch but not in a try-finally.
 
-C'est pour ça que notre code est un peu plus compliqué qu'une simple double boucle pour prendre en compte d'éventuelles erreurs. Mais malgré celà il reste toujours plus court et facile à maintenir que notre énumérateur précédent.
+It's for that our code is more complex than a simple double loop to handle possible errors. But despite this there is still more short and easy to maintain than our previous enumerator.
 
-L'énumérateur généré supporte le `IDisposable` par exemple dans notre cas si l'itération se termine en cours de lecture d'un fichier, comme il y a un `using`, le compilateur se chargera de créer le code nécessaire pour disposer la ressource se trouvant dans le `using`. De même que si dans une boucle `foreach` une exception est levée, et que l'on a un bloc `finally`qui englobe le `yield return` en cours alors ce bloc `finally` sera exécuté.
+The generated enumerator supports `IDisposable`, for example in our case if the iteration is stopped when reading a file, and because there is a `using`, the compiler create the code dispose the resource in the `using`. Same as if in a `foreach` an exception is raised, and the `yield return` is within a `try-finally` this block will be executed.
 
-Le mot clé `yield` peut être utilisé dans une méthode qui retourne `IEnumerable` mais également `IEnumerator` ce qui nous permet d'implémenter `IEnumerable.GetEnumerator()` par une méthode `yield`.
+The `yield` keyword can be used in a method that returns an `IEnumerable` or an `IEnumerator`, permitting to implements the `IEnumerable.GetEnumerator()` with a `yield` method.
 
-Dernier point, l'énumérateur généré par le compilateur ne prend pas en charge `IEnumerator.Reset()` une exception `NotSupportedException` est levée.
+Last point; the enumerator generated by the compiler don't implements the `IEnumerator.Reset()`, an `NotSupportedException` will be raised.
 
-Pour plus d'informations sur `yield` et les itérateurs, voici quelques liens :
+For more informations about the `yield` and enumerable, look this links :
 
-- [Référence C# de yield](https://msdn.microsoft.com/fr-fr/library/9k7k7cf0.aspx)
-- [Les itérateurs en C# et VB.net](https://msdn.microsoft.com/fr-fr/library/dscyy5s0.aspx)
+- [yield : C# reference](https://msdn.microsoft.com/en-us/library/9k7k7cf0.aspx)
+- [Iterators (C# and VB.Net)](https://msdn.microsoft.com/en-us/library/dscyy5s0.aspx)
+
+## The last word about 'yield'
+
+The keyword `yield` is very useful, it permits to handle some complex scenarios with a 'classic' code. The real difficulty is about the exceptions management, wich can complicate our code, but in general our code is always mor simple the create an enumerator.
+
+The Visual Studio compiler and debugger are very efficients by permitting to debug step-by-step within the generated enumerator by `yield`, and so tracing exactly what happens in the enumerator, event if the code in the yield method is complex, the trace follow exactly the code.  
+
+The sample program provides the examples discussed in this part, and more other `yield` methods to show some complex things.
+
+# LINQ and the chaining enumerables
 
 
-## Pour en finir avec 'yield'
 
-L'utilisation de `yield` est très pratique, elle permet de gérer des scénarios complexes avec un code 'classique'. La seule vraie difficulté réside dans la gestion des exceptions, qui peut compliquer notre code, mais de manière générale notre code reste toujours plus simple.
+~~~ TO TRANSLATE
 
-Le compilateur et le debuggeur de Visual Studio sont extrêment performants et vous permettent de faire du pas à pas dans l'énumérateur généré par `yield`, et ainsi de tracer exactement ce qu'il se passe dans l'énumérateur, même si le code dans la méthode yield est complexe, la trace suit parfaitement votre code.
-
-Le programme d'exemple contient les différents exemples donnés, plus quelques méthodes `yield` suplémentaires pour montrer qu'on peut faire des choses complexes.
-
-# LINQ et les énumérables à la chaîne
 
 LINQ est un language de requêtage intégré au language C# ou VB.Net, le propos de cette partie n'est pas d'expliquer LINQ en lui-même mais son comportement avec les énumérables dans la suite des deux précédentes parties.
 
