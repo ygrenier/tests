@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using static System.Console;
 
@@ -231,6 +232,70 @@ namespace CSharp7NewFeatures
 
         #endregion
 
+        #region Ref returns and local
+
+        static ref int Find(int number, int[] numbers)
+        {
+            for (int i = 0; i < numbers.Length; i++)
+            {
+                if (numbers[i] == number)
+                {
+                    return ref numbers[i]; // return the storage location, not the value
+                }
+            }
+            throw new IndexOutOfRangeException($"{nameof(number)} not found");
+        }
+
+        static void RefReturns()
+        {
+            int[] array = { 1, 15, -39, 0, 7, 14, -12 };
+            ref int place = ref Find(7, array); // aliases 7's place in the array
+            place = 9; // replaces 7 with 9 in the array
+            WriteLine(array[4]); // prints 9
+        }
+
+        #endregion
+
+        #region Async
+
+        //static ValueTask<int> AsyncOtherType()
+        //{
+
+        //}
+
+        #endregion
+
+        #region Expression bodies
+        class Person
+        {
+            private static ConcurrentDictionary<int, string> names = new ConcurrentDictionary<int, string>();
+            private int id = GetId();
+
+            static int GetId() => 123;
+
+            public Person(string name) => names.TryAdd(id, name); // constructors
+            ~Person() => names.Clear();                           // destructors
+
+            public string Name
+            {
+                get => names[id];                                 // getters
+                set => names[id] = value;                         // setters
+            }
+        }
+        #endregion
+
+        class User
+        {
+            public string Name { get; }
+            public User(string name) => Name = name ?? throw new ArgumentNullException(nameof(name));
+            public string GetFirstName()
+            {
+                var parts = Name.Split(new string[] { " " }, StringSplitOptions.None);
+                return (parts.Length > 0) ? parts[0] : throw new InvalidOperationException("No name!");
+            }
+            public string GetLastName() => throw new NotImplementedException();
+        }
+
         static void Main(string[] args)
         {
             #region Out variables
@@ -274,7 +339,11 @@ namespace CSharp7NewFeatures
             #endregion
 
             #region Litterals
-            Litterals();
+            //Litterals();
+            #endregion
+
+            #region Ref returns
+            RefReturns();
             #endregion
 
             Read();

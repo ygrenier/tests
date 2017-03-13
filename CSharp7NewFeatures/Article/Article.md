@@ -1,7 +1,7 @@
 Avec la sortie de Visual Studio 20017, nous avons eu également le droit à une nouvelle
 version du C#, le C# 7.0, avec son lot de nouveautés.
 
-Alors ne vous attendez pas à une révolution, mais plutôt à un ensemble d'ajout pour 
+Alors ne vous attendez pas à une révolution, mais plutôt à un ensemble d'ajouts pour 
 améliorer l'écriture et l'exécution du code.
 
 Faison un rapide tour de tout ça.
@@ -414,12 +414,103 @@ static void Litterals()
 }
 ```
 
+# Valeur de retour et variable local par référence
+
+Oui vous avez bien lu! Tout comme vous pouvez transmettre des éléments par référence
+(grâce au modificateur `ref`), vous pouvez désormais les *retourner* par référence, et
+enregistrer leur référence au lieu de leur valeur.
+
+```csharp
+static ref int Find(int number, int[] numbers)
+{
+    for (int i = 0; i < numbers.Length; i++)
+    {
+        if (numbers[i] == number)
+        {
+            return ref numbers[i]; // return the storage location, not the value
+        }
+    }
+    throw new IndexOutOfRangeException($"{nameof(number)} not found");
+}
+
+static void RefReturns()
+{
+    int[] array = { 1, 15, -39, 0, 7, 14, -12 };
+    ref int place = ref Find(7, array); // aliases 7's place in the array
+    place = 9; // replaces 7 with 9 in the array
+    WriteLine(array[4]); // prints 9
+}
+```
+
+Cette syntaxe est très utile pour transmettre des emplacements dans de grosses structures.
+Par exemple un jeu peut maintenir un grand nombre de données préallouées (pour éviter trop
+de sollicitation du garbage collector). Ce type méthode peut désormais nous transmettre
+une référence directement sur une structure grâce à laquelle on peut la lire et la modifier.
+
+Il y a quelques restrictions pour rester sécurisé
+- On ne peut retourner que des références sécurisées: celles qui sont retournées et celles 
+qui pointe sur des membres d'instances
+- les références locales sont initialisées vers un certain point de stockage et ne peuvent pas
+être modifiées pour pointer ailleurs
+
+# Généralisation des types de retour async
+
+Jusqu'à présent les méthodes async en C# devaient retourner soit `void`, soit `Task`, 
+soit `Task<T>`. C# 7.0 autorise d'autres types à être définis comme type retourné
+par une méthode async.
+
+# Expressions de corps supplémentaires
+
+Les expressions de corps de méthodes proposées par C# 6.0 (ces méthodes dont on définis
+le corps comme des expressions) ne couvraient pas tous les types de membre.
+
+Le C# 7.0 ajoute les accesseurs (getters/setters), les constructeurs et les finaliseurs.
+
+```csharp
+class Person
+{
+    private static ConcurrentDictionary<int, string> names = new ConcurrentDictionary<int, string>();
+    private int id = GetId();
+
+    static int GetId() => 123;
+
+    public Person(string name) => names.TryAdd(id, name); // constructors
+    ~Person() => names.Clear();                           // destructors
+
+    public string Name
+    {
+        get => names[id];                                 // getters
+        set => names[id] = value;                         // setters
+    }
+}
+```
+
+# Throws dans les expressions
+
+A partir du C# 7.0 nous pouvons désormais provoquer une exception dans une expression.
+
+```csharp
+class User
+{
+    public string Name { get; }
+    public User(string name) => Name = name ?? throw new ArgumentNullException(nameof(name));
+    public string GetFirstName()
+    {
+        var parts = Name.Split(new string[] { " " }, StringSplitOptions.None);
+        return (parts.Length > 0) ? parts[0] : throw new InvalidOperationException("No name!");
+    }
+    public string GetLastName() => throw new NotImplementedException();
+}
+``` 
 
 # Références
 - [https://blogs.msdn.microsoft.com/dotnet/2017/03/09/new-features-in-c-7-0/](https://blogs.msdn.microsoft.com/dotnet/2017/03/09/new-features-in-c-7-0/)
 - [https://msdn.microsoft.com/en-us/magazine/mt790184.aspx](https://msdn.microsoft.com/en-us/magazine/mt790184.aspx)
 
 # Conclusion
+
+Voilà c'est tout. Comme je l'ai indiquer en préambule, pas de révolution majeur,
+mais quelques ajouts bien sympathique pour nous faciliter l'écriture de notre code.
 
 A bientôt 
 
