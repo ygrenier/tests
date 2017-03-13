@@ -50,13 +50,13 @@ namespace CSharp7NewFeatures
             if (o is "test") return;
 
             // type pattern "int i"
-            if (!(o is int i)) return; 
+            if (!(o is int i)) return;
             WriteLine(new string('*', i));
         }
 
         static void ComplexIsPattern(object o)
         {
-            if(o is int i || (o is string s && int.TryParse(s,out i)))
+            if (o is int i || (o is string s && int.TryParse(s, out i)))
             {
                 WriteLine(new string('*', i));
             }
@@ -105,26 +105,65 @@ namespace CSharp7NewFeatures
 
         #endregion
 
+        #region Tuples
+
+        static (string, int, string) ReturnsTuple() // tuple return type
+        {
+            return ("un", 2, "trois"); // tuple literal
+        }
+
+        static void UseTuple()
+        {
+            var values = ReturnsTuple();
+            WriteLine($"{values.Item1}, {values.Item2}, {values.Item3}");
+        }
+
+        static (string first, int, string last) ReturnsTupleWithNames() // tuple with names
+        {
+            return ("un", 2, "trois"); // tuple literal
+        }
+
+        static void UseTupleWithNames()
+        {
+            var values = ReturnsTupleWithNames();
+            WriteLine($"{values.first}, {values.Item2}, {values.last}");
+        }
+
+        static void UseTupleWithExplicitNames()
+        {
+            var values = (f: "un", second: 2, last: "trois");
+            WriteLine($"{values.f}, {values.second}, {values.last}");
+        }
+        #endregion
+
         static void Main(string[] args)
         {
-            // Out variables
+            #region Out variables
             //CallDivAndModulo();
             //CallDivAndModuloWithOutVariables();
             //CallDivOnly();
             //CallTryParseWithOutVariables("12");
             //CallTryParseWithOutVariables("Test");
+            #endregion
 
-            // Pattern matching
+            #region Pattern matching
             //IsWithPatterns("test");
             //IsWithPatterns(12);
             //ComplexIsPattern(12);
             //ComplexIsPattern(12.3);
             //ComplexIsPattern("8");
-            SwitchWithPattern(new Circle { Radius = 4 });
-            SwitchWithPattern(new Rectangle { Width = 24, Height = 12 });
-            SwitchWithPattern(new Rectangle { Width = 12, Height = 12 });
-            SwitchWithPattern(new Line { });
-            SwitchWithPattern("test");
+            //SwitchWithPattern(new Circle { Radius = 4 });
+            //SwitchWithPattern(new Rectangle { Width = 24, Height = 12 });
+            //SwitchWithPattern(new Rectangle { Width = 12, Height = 12 });
+            //SwitchWithPattern(new Line { });
+            //SwitchWithPattern("test");
+            #endregion
+
+            #region Tuples
+            //UseTuple();
+            //UseTupleWithNames();
+            //UseTupleWithExplicitNames();
+            #endregion
 
             Read();
         }

@@ -199,6 +199,81 @@ bloc du case.
 Attention les instructions `goto case ...` ne sont applicables qu'aux case constante, 
 pas avec des patterns.
 
+# Les tuples
+
+Haa l'une de mes fonctionnalités préférées du C# 7.0 :)
+
+Il est assez courant d'avoir besoin de retourner plusieurs valeurs depuis une méthode. Avec
+les versions précédentes du C# nous avions les options peu optimales suivantes:
+- Paramètres output: pas facile d'utilisation (même avec les améliorations décrites 
+précédemment) et ne supportent pas les méthodes async.
+- Type de retour `System.Tuple<>`: utilisation verbeuse, nécessite d'allouer un objet tuple.
+- Type personnalisé pour retourner les valeurs: écriture de beaucoup de code pour une utlisation temporaire.
+- Retour de type anonyme via un `dynamic`: réduction des performances de code  et pas de vérification statique de type .
+
+Pour améliorer ça, le C# 7.0 apportent le type tuple et les tuples littéraux.
+
+```csharp
+static (string, int, string) ReturnsTuple() // Type de retour tuple
+{
+    return ("un", 2, "trois"); // Tuple littéral
+}
+```
+
+Notre méthode renvoie trois valeurs encapsulées dans une valeur tuple.
+
+L'appelant de la méthode recoit un tuple et peut accéder aux éléments individuels:
+```csharp
+static void UseTuple()
+{
+    var values = ReturnsTuple();
+    WriteLine($"{values.Item1}, {values.Item2}, {values.Item3}");
+}
+```
+
+Les noms **Item1**, etc. sont les noms des membres par défaut des tuples, mais ils ne 
+sont vraiment descriptifs. Heureusement désormais on peut si on le souhaite nommer
+nos éléments de tuple.
+
+```csharp
+static (string first, int, string last) ReturnsTupleWithNames() // tuple with names
+{
+    return ("un", 2, "trois"); // tuple literal
+}
+```
+
+maintenant nous pouvons utiliser des noms plus explicites
+
+```csharp
+static void UseTupleWithNames()
+{
+    var values = ReturnsTupleWithNames();
+    WriteLine($"{values.first}, {values.Item2}, {values.last}");
+}
+```
+
+On peut également sépcifier les noms explicitement lors de la définition des tuples.
+
+```csharp
+static void UseTupleWithExplicitNames()
+{
+    var values = (f: "un", second: 2, last: "trois");
+    WriteLine($"{values.f}, {values.second}, {values.last}");
+}
+```
+
+A savoir que les noms ne sont que des alias aux noms `Item*`, donc les noms `Item*` 
+existent toujours. Ce n'est pas un nouveau type qui est généré, mais le type `ValueTuple<>`
+qui est "décoré" par le compilateur.
+
+De ce fait, on peut assigner n'importe quel tuple dans un autre a partir du moment où
+chacun des membres est du même type et que le nombre de membres eset identique, 
+les noms "originaux" ne changeant pas.
+
+**ATTENTION:** Si vous utilisez les `ValueTuple<>` dans un framework qui ne les supportent pas
+(vous aurez une erreur de compilation ou un type tuple est introuvable),
+il faut installer le package Nuget `System.ValueTuple`.
+
 # Références
 - [https://blogs.msdn.microsoft.com/dotnet/2017/03/09/new-features-in-c-7-0/](https://blogs.msdn.microsoft.com/dotnet/2017/03/09/new-features-in-c-7-0/)
 - [https://msdn.microsoft.com/en-us/magazine/mt790184.aspx](https://msdn.microsoft.com/en-us/magazine/mt790184.aspx)
