@@ -81,10 +81,127 @@ static void CallDivOnly()
 ```
 Enfin terminées les variables `dummy` ;)
 
+# Pattern Matching (ou filtres)
+
+C# 7.0 introduit la notions de "patterns" (ou "modèles"), qui sont des éléments 
+syntaxiques qui permettent de *tester* qu'une valeur correspond à une certaine "forme"
+et d'*extraire* des informations de ce test. On utilise ces patterns dans des éléments
+du language.
+
+C# 7.0 gère les patterns suivants:
+
+- **Constant pattern**: de la forme `c` (où `c` est une expression constante) qui test
+si l'entrée est égale à `c`.
+- **Type pattern**: de la forme `T x` (où `T` est un type et `x` est un identificateur) qui
+test si l'entrée est du type `T` et si c'est le cas extrait la valeur de l'entrée dans
+une nouvelle variable `x` de type `T`
+- **Var pattern": de la forme `var x` (où `x` est un identificateur) qui est toujours 
+valide et place simplement la valeur de l'entrée dans une nouvelle variable `x` avec le 
+même type que l'entrée.
+
+On utilise ces patterns dans deux extensions du language C# 7.0.
+
+## Expression 'is' avec des patterns
+
+Les expressions `is` peuvent désormais supporter un pattern dans la partie droite, à la place d'un simple type.
+
+```csharp
+static void IsWithPatterns(object o)
+{
+    // constant pattern "null"
+    if (o is null) return;
+    if (o is "test") return;
+
+    // type pattern "int i"
+    if (!(o is int i)) return; 
+    WriteLine(new string('*', i));
+}
+```
+
+Voici deux exemples d'utilisation des patterns dans une expression `is`.
+
+Dans le "constant pattern" l'utilité réside essentiellement dans le fait qu'il n'a pas
+nécessaire de faire appelle aux méthodes d'égalité des objets (je vous rappelle à toutes
+fins utiles que l'opérateur d'égalité `==` ne s'appliquer sur un `object` avec un `string`),
+var l'opérateur `is` et les patterns nous avons un test de type, et ensuite une 
+comparaison de valeur.
+
+Le second pattern est plus utile, nous vérifions que notre objet est d'un type en 
+particulier  et si c'est le cas on l'affecte dans une variable du type en question.
+
+Comme pour les variables out (qui ont étrangement la même syntaxe) la portée des variables
+définies de cette manières est du bloc englobant.
+
+On peut combiner `is` avec des patterns et `Try...`:
+
+```csharp
+static void ComplexIsPattern(object o)
+{
+    if(o is int i || (o is string s && int.TryParse(s,out i)))
+    {
+        WriteLine(new string('*', i));
+    }
+}
+```
+
+## Instruction 'switch' avec des patterns
+
+L'instruction `switch` a été modifiée afin de:
+- tester un type en particulier (et pas uniquement un type primitif)
+- utiliser les patterns dans les clauses `case`
+- d'avoir des conditions supplémentaires dans les clauses `case`
+
+```csharp
+static void SwitchWithPattern(object shape)
+{
+    switch (shape)
+    {
+        case Circle c:
+            WriteLine($"Cercle d'un rayon de {c.Radius}");
+            break;
+        case Rectangle s when (s.Width == s.Height):
+            WriteLine($"Carré {s.Width} x {s.Height}");
+            break;
+        case Rectangle r:
+            WriteLine($"Rectangle {r.Width} x {r.Height}");
+            break;
+        case "test":
+            WriteLine("C'est un test");
+            break;
+        default:
+            WriteLine("<forme inconnue>");
+            break;
+        case null:
+            throw new ArgumentNullException(nameof(shape));
+    }
+}
+```
+
+On constate différentes choses avec cette nouvelle instruction `switch`:
+
+- *Désormais l'ordre des clauses `case` est important*: comme pour les clauses `catch`,
+les clauses `case` sont validées dans l'ordre, et la première qui est valide est 
+exécutée. Dans notre exemple il est important que le test du carré soit effectué AVANT
+celui du rectangle. De même le compilateur vous prévient si une clause `case` n'est 
+jamais atteinte.
+- *La clause par défaut est TOUJOURS exécutée en dernier*: malgré qu'elle ne soit pas
+la dernière clause (on a une clause null après) c'est elle qui sera toujours exécutée
+en dernier, principalement pour des raisons de compatibilité. Malgré tout il est
+préférable de toujours définir la clause `default` en dernier.
+- *La clause null à la fin est accessible*: étant donné que les types patterns suivent
+le même principe que pour l'expression `is` et qu'ils ne valident par le null, ce qui
+nous garanti que les valeurs null ne sont pas validées par n'importe quel type qui
+pourrait être défini dans une clause précédente.
+
+Les variables définies dans les patterns d'une clause `cause` ont une portée limitée au
+bloc du case.
+
+Attention les instructions `goto case ...` ne sont applicables qu'aux case constante, 
+pas avec des patterns.
 
 # Références
 - [https://blogs.msdn.microsoft.com/dotnet/2017/03/09/new-features-in-c-7-0/](https://blogs.msdn.microsoft.com/dotnet/2017/03/09/new-features-in-c-7-0/)
-
+- [https://msdn.microsoft.com/en-us/magazine/mt790184.aspx](https://msdn.microsoft.com/en-us/magazine/mt790184.aspx)
 
 # Conclusion
 
