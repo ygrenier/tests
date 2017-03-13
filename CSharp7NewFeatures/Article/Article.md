@@ -274,6 +274,93 @@ les noms "originaux" ne changeant pas.
 (vous aurez une erreur de compilation ou un type tuple est introuvable),
 il faut installer le package Nuget `System.ValueTuple`.
 
+# Déconstruction
+
+Une autre manière d'exploiter les tuples, est la déconstruction. 
+
+Une **déclaration de déconstruction** est une syntaxe qui permet de décomposer chaque 
+élément du tuple dans une variable.
+
+```csharp
+static void DeconstructingDeclaration()
+{
+    (string f, int c, string l) = ReturnsTuple();   // deconstructing
+    WriteLine($"{f}, {c}, {l}");
+}
+```
+
+On peut utiliser `var` dans la déclaration individuelle des variables.
+```csharp
+static void DeconstructingDeclarationVarInside()
+{
+    (var f, var c, var l) = ReturnsTuple();   // var inside
+    WriteLine($"{f}, {c}, {l}");
+}
+```
+
+Mais on peut également définir `var` de manière plus globale en dehors des parenthèse 
+comme abréviation.
+```csharp
+static void DeconstructingDeclarationVarOutside()
+{
+    var (f, c, l) = ReturnsTuple();   // var outside
+    WriteLine($"{f}, {c}, {l}");
+}
+```
+
+On peut également déconstruire dans des variables existantes, c'est ce qu'on appelle
+**affectation de déconstruction**.
+
+```csharp
+static void DeconstructingAssignment()
+{
+    string first = "first";
+    int count = -5;
+    string last = "last";
+
+    (first, count, last) = ReturnsTuple();  // deconstructing assignment
+    WriteLine($"{first}, {count}, {last}");
+}
+```
+
+La déconstruction n'est pas valable uniquement pour les tuples. N'importe quel type
+peut être déconstruit a partir du moment ou une méthode (d'instance ou d'extension)
+*deconstrucor* est définie de la forme suivante:
+
+```csharp
+public void Deconstruct(out T1 x1, ..., out Tn xn) { ... }
+```
+
+Les paramètres de sorties constituent les valeurs qui résultent de la déconstruction.
+
+```csharp
+class DeconstructObject
+{
+    public void Deconstruct(out string name, out int count)
+    {
+        name = Name;
+        count = Count;
+    }
+    public string Name { get; set; }
+    public int Count { get; set; }
+}
+
+static void DeconstructingObject()
+{
+    var dobj = new DeconstructObject { Name = "Nom", Count = 2 };
+    var (n, c) = dobj;
+    WriteLine($"{n}, {c}");
+}
+```
+
+L'intérêt de déconstruire un objet plutôt que de renvoyer un tuple, est qu'on peut
+surcharger la méthode avec autant de déclinaisons que l'on veut.
+
+Tout comme pour les variables 'out' il est possible d'ignorer un valeur de déconstruction
+avec `_`.
+
+
+
 # Références
 - [https://blogs.msdn.microsoft.com/dotnet/2017/03/09/new-features-in-c-7-0/](https://blogs.msdn.microsoft.com/dotnet/2017/03/09/new-features-in-c-7-0/)
 - [https://msdn.microsoft.com/en-us/magazine/mt790184.aspx](https://msdn.microsoft.com/en-us/magazine/mt790184.aspx)

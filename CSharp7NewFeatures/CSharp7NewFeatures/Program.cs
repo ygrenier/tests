@@ -136,6 +136,61 @@ namespace CSharp7NewFeatures
         }
         #endregion
 
+        #region Deconstruction
+
+        static void DeconstructingDeclaration()
+        {
+            (string f, int c, string l) = ReturnsTuple();   // deconstructing
+            WriteLine($"{f}, {c}, {l}");
+        }
+
+        static void DeconstructingDeclarationVarInside()
+        {
+            (var f, var c, var l) = ReturnsTuple();   // var inside
+            WriteLine($"{f}, {c}, {l}");
+        }
+
+        static void DeconstructingDeclarationVarOutside()
+        {
+            var (f, c, l) = ReturnsTuple();   // var outside
+            WriteLine($"{f}, {c}, {l}");
+        }
+
+        static void DeconstructingAssignment()
+        {
+            string first = "first";
+            int count = -5;
+            string last = "last";
+
+            (first, count, last) = ReturnsTuple();  // deconstructing assignment
+            WriteLine($"{first}, {count}, {last}");
+        }
+
+        class DeconstructObject
+        {
+            public void Deconstruct(out string name, out int count)
+            {
+                name = Name;
+                count = Count;
+            }
+            public string Name { get; set; }
+            public int Count { get; set; }
+        }
+
+        static void DeconstructingObject()
+        {
+            var dobj = new DeconstructObject { Name = "Nom", Count = 2 };
+            var (n, c) = dobj;
+            WriteLine($"{n}, {c}");
+        }
+
+        static void DeconstructingWithIgnores()
+        {
+            (_, var c, _) = ReturnsTuple();
+            WriteLine($"{c}");
+        }
+        #endregion
+
         static void Main(string[] args)
         {
             #region Out variables
@@ -163,6 +218,15 @@ namespace CSharp7NewFeatures
             //UseTuple();
             //UseTupleWithNames();
             //UseTupleWithExplicitNames();
+            #endregion
+
+            #region Deconstruction
+            DeconstructingDeclaration();
+            DeconstructingDeclarationVarInside();
+            DeconstructingDeclarationVarOutside();
+            DeconstructingAssignment();
+            DeconstructingObject();
+            DeconstructingWithIgnores();
             #endregion
 
             Read();
