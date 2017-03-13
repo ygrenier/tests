@@ -218,6 +218,19 @@ namespace CSharp7NewFeatures
 
         #endregion
 
+        #region Litterals
+
+        static void Litterals()
+        {
+            int dec = 12_34;        // decimal
+            int hex = 0xA1_23;      // hexadecimal
+            int boo = 0b1010_1100;  // binaire
+
+            WriteLine($"{dec}, {hex}, {boo}");
+        }
+
+        #endregion
+
         static void Main(string[] args)
         {
             #region Out variables
@@ -257,7 +270,11 @@ namespace CSharp7NewFeatures
             #endregion
 
             #region Locals functions
-            LocalFunc();
+            //LocalFunc();
+            #endregion
+
+            #region Litterals
+            Litterals();
             #endregion
 
             Read();

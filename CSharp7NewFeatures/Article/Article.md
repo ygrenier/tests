@@ -393,6 +393,26 @@ static void LocalFunc()
 }
 ```
 
+# Amélioration des littéraux
+
+Les nombres littéraux ont également leur part d'amélioration.
+
+On peut désormais utiliser `_` dans un nombre "séparateur digital", celà ne représente 
+rien, ce caractère sert de séparateur afin de permettre une meilleure lecture d'un 
+nombre.
+
+De plus C# 7.0 les littéraux binaires.
+
+```csharp
+static void Litterals()
+{
+    int dec = 12_34;        // decimal
+    int hex = 0xA1_23;      // hexadecimal
+    int boo = 0b1010_1100;  // binaire
+
+    WriteLine($"{dec}, {hex}, {boo}");
+}
+```
 
 
 # Références
