@@ -512,6 +512,9 @@ class User
 Voilà c'est tout. Comme je l'ai indiquer en préambule, pas de révolution majeur,
 mais quelques ajouts bien sympathique pour nous faciliter l'écriture de notre code.
 
+Vous trouverez tous les codes de cet article à cette adresse: [https://github.com/ygrenier/tests/tree/master/CSharp7NewFeatures]
+(https://github.com/ygrenier/tests/tree/master/CSharp7NewFeatures).
+
 A bientôt 
 
 Yanos
