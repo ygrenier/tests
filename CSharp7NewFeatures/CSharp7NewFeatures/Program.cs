@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using static System.Console;
 
 namespace CSharp7NewFeatures
@@ -191,6 +192,32 @@ namespace CSharp7NewFeatures
         }
         #endregion
 
+        #region Locals functions
+
+        static void LocalFunc()
+        {
+            foreach (var line in GetLines())
+            {
+                WriteLine(line);
+            }
+
+            void Pow(int value, out int result)
+            {
+                result = value * value;
+            }
+
+            IEnumerable<string> GetLines()
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    Pow(i, out int r);
+                    yield return $"{i}*{i}={r}";
+                }
+            }
+        }
+
+        #endregion
+
         static void Main(string[] args)
         {
             #region Out variables
@@ -221,12 +248,16 @@ namespace CSharp7NewFeatures
             #endregion
 
             #region Deconstruction
-            DeconstructingDeclaration();
-            DeconstructingDeclarationVarInside();
-            DeconstructingDeclarationVarOutside();
-            DeconstructingAssignment();
-            DeconstructingObject();
-            DeconstructingWithIgnores();
+            //DeconstructingDeclaration();
+            //DeconstructingDeclarationVarInside();
+            //DeconstructingDeclarationVarOutside();
+            //DeconstructingAssignment();
+            //DeconstructingObject();
+            //DeconstructingWithIgnores();
+            #endregion
+
+            #region Locals functions
+            LocalFunc();
             #endregion
 
             Read();

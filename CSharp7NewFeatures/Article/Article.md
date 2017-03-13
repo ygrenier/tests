@@ -359,6 +359,40 @@ surcharger la méthode avec autant de déclinaisons que l'on veut.
 Tout comme pour les variables 'out' il est possible d'ignorer un valeur de déconstruction
 avec `_`.
 
+# Fonctions locales
+
+Parfois des méthodes utilitaires ne sont utilisées qu'à l'intérieur d'une méthode. On
+peut définir une méthode anonyme à l'intérieur de la méthode, malheureusement 
+elles ne supportent pas certains choses (paramètres out, mot clé yield, etc.).
+
+Désormais les *fonctions locales* vont nous permettrent de faire tout celà. Tout comme
+les méthodes anonymes les fonctions locales ont accès aux paramètres et variables de la
+portée du bloc où est déclarée la fonction locale.
+
+```csharp
+static void LocalFunc()
+{
+    foreach (var line in GetLines())
+    {
+        WriteLine(line);
+    }
+
+    void Pow(int value, out int result)
+    {
+        result = value * value;
+    }
+
+    IEnumerable<string> GetLines()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            Pow(i, out int r);
+            yield return $"{i}*{i}={r}";
+        }
+    }
+}
+```
+
 
 
 # Références
