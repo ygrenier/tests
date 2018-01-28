@@ -1,12 +1,8 @@
 ---
 layout: page
-title: About
+title: A propos
 permalink: /about/
 ---
 
+Le dépôt [ygrenier/tests](http://github.com/ygrenier/tests) contient tout un ensemble de projets de démonstration pour les tests ou les tutoriaux que je propose parfois sur [mon blog](http://blog.ygrenier.com). 
 
-
-
-Webjeda cards is a Bootstrap based theme. Any Bootstrap element can be used in the theme. Read [Webjeda Blog](http://blog.webjeda.com){: target="_blank"} for jekyll tutorials. 
-
-For more themes, visit [jekyll-themes](https://jekyll-themes.com){: target="_blank"}

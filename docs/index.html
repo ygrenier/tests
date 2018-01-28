@@ -3,8 +3,9 @@ layout: default
 ---
 
 <div class="home">
+{% if paginator.posts.count > 0 %}
+  <h2>Articles</h2>
  
-  
     <div class="row pack">
 
         {% for post in paginator.posts %}   
@@ -17,11 +18,11 @@ layout: default
                   {% if post.img %}
                   <img width="100%" src="{{site.baseurl}}/images/{{post.img}}" alt="{{post.title}}">
                   {% else %}
-                  <img width="100%" src="{{site.baseurl}}/images/webjeda-logo-big.jpg" alt="{{site.title}}">
+                  <!--<img width="100%" src="{{site.baseurl}}/images/webjeda-logo-big.jpg" alt="{{site.title}}">-->
                   {% endif %}
                   <div class="panel-body"><small>
                     {{ post.excerpt | strip_html | strip_newlines | truncate: 160 }}</small>
-                    <a href="{{ post.url | prepend: site.baseurl }}" class="btn btn-primary btn-sm pull-right mt10">Read</a>
+                    <a href="{{ post.url | prepend: site.baseurl }}" class="btn btn-primary btn-sm pull-right mt10">Lire</a>
                   </div>
                 </div>
             </div>
@@ -62,4 +63,29 @@ layout: default
     </div>
     <div class="col-md-4">  </div>
 </div>
+{% endif %}
+
+<h2>Projets</h2>
+
+<div class="row">
+    {% for project in site.projects %}
+    <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <h3 class="panel-title pull-left">{{ project.title | truncate: 25 }}</h3>
+            <span class="post-meta pull-right"><a target="_blank" href="{{site.github-project-base}}/{{project.project}}"><li class="social github"><img src="{{site.baseurl}}/images/github.svg" alt="Project: {{project.project}}"></li></a></span>
+            <span class="post-meta pull-right"><small>{{ project.author }}</small></span>
+          </div>
+          {% if project.img %}
+          <img width="100%" src="{{site.baseurl}}/images/{{project.img}}" alt="{{project.title}}">
+          {% endif %}
+          <div class="panel-body"><small>
+            {{ project.description | truncate: 160 }}</small>
+            <a href="{{ project.url | prepend: site.baseurl }}" class="btn btn-primary btn-sm pull-right mt10">Lire</a>
+          </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
 </div>

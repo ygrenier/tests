@@ -6,13 +6,12 @@
 # 'jekyll serve'. If you change this file, please restart the server process.
 
 # Site settings
-title: Test Yanos
+title: Tests du Yanos
 email: ygrenier@ygrenier.com
 description: > # this means to ignore newlines until "baseurl:"
-  C'est un test
-  
-  
-  
+  Différents projets de tests ou de tutoriels
+
+
 baseurl: "/tests" # the subpath of your site, e.g. /blog
 url: "http://ygrenier.github.io/tests/" # the base hostname & protocol for your site
 
@@ -20,10 +19,10 @@ url: "http://ygrenier.github.io/tests/" # the base hostname & protocol for your 
 default-image: webjeda-logo-big.jpg # If there is no featured image in a post then this image will be showed. Also on all pages this image will be showed. Use a 500x250 image.
 
 #footer
-built-by: webjeda
+built-by: Yan Grenier
 copyright:
-   name: webjeda
-   link: 'http://blog.webjeda.com'
+   name: Yan Grenier
+   link: 'http://blog.ygrenier.com'
 
 # Build settings
 markdown: kramdown
@@ -32,26 +31,60 @@ paginate: 6
 paginate_path: /page:num/
 
 # Tracker
-analytics: UA-83979019-1
+#analytics: UA-83979019-1
 
 # Comments
-disqus-shortname: webjeda-demo
+#disqus-shortname: webjeda-demo
 
 #social
-facebook: http://facebook.com/webjeda
-quora: http://quora.com/sharathdt
-twitter: http://twitter.com/@webjeda
-github: http://github.com/webjeda
+#facebook: http://facebook.com/webjeda
+#quora: http://quora.com/sharathdt
+#twitter: http://twitter.com/@webjeda
+github: http://github.com/ygrenier
+github-projects: http://github.com/ygrenier/tests
+github-project-base: http://github.com/ygrenier/tests/tree/master
 
 #facebook like box
-fb-app-id: 549480635219583
-fb-page-url: https://www.facebook.com/webjeda/
-fb-page-title: webjeda
+#fb-app-id: 549480635219583
+#fb-page-url: https://www.facebook.com/webjeda/
+#fb-page-title: webjeda
 
 # Sass style
 sass:
   style: compressed
 
 # Ruby Gems
-gems: [jekyll-paginate, jekyll-seo-tag]
+#gems: [jekyll-paginate, jekyll-seo-tag]
+plugins: [jekyll-paginate, jekyll-seo-tag]
 
+# Collections
+collections:
+  projects:
+    layout: "project"
+    output: true
+
+# Defaults
+defaults:
+  -
+    scope:
+      path: "" # an empty string here means all files in the project
+    values:
+      author: "Yanos"
+  -
+    scope:
+      path: "" # an empty string here means all files in the project
+      type: "posts" # previously `post` in Jekyll 2.2.
+    values:
+      layout: "post"
+  -
+    scope:
+      path: "" # an empty string here means all files in the project
+      type: "pages"
+    values:
+      layout: "page"
+  -
+    scope:
+      path: "" # an empty string here means all files in the project
+      type: "projects"
+    values:
+      layout: "project"
